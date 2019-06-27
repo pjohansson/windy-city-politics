@@ -1,0 +1,4 @@
+(
+    title: "Untitled Not-Goose Game",
+    dimensions: Some((960, 720)),
+)

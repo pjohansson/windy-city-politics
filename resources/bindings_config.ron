@@ -1,0 +1,14 @@
+(
+  axes: {
+    // "left_paddle": Emulated(pos: Key(W), neg: Key(S)),
+    // "right_paddle": Emulated(pos: Key(Up), neg: Key(Down)),
+    "move_horizontal": Emulated(pos: Key(Right), neg: Key(Left)),
+    "move_vertical": Emulated(pos: Key(Up), neg: Key(Down)),
+  },
+  actions: {
+    // "move_up": Key(Up),
+    // "move_down": Key(Down),
+    // "move_left": Key(Left),
+    // "move_right": Key(Right),
+  },
+)

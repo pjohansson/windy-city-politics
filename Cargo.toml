@@ -1,0 +1,16 @@
+[package]
+name = "game"
+version = "0.1.0"
+authors = ["Petter Johansson <pettjoha@kth.se>"]
+edition = "2018"
+
+[dependencies]
+
+[dependencies.amethyst]
+version = "0.11"
+features = ["vulkan", "nightly"]
+
+[dev-dependencies]
+amethyst_test = "0.2"
+lazy_static = "1.3"
+rayon = "1.1"
