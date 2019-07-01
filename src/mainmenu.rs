@@ -1,78 +1,75 @@
 use amethyst::{
-    assets::{AssetStorage, Handle, Loader},
-    core::transform::Transform,
-    ecs::prelude::{Component, DenseVecStorage, NullStorage},
+    core::{transform::Parent, Hidden},
+    ecs::{world::EntitiesRes, Entity, Join},
+    input::{is_key_down, VirtualKeyCode},
     prelude::*,
-    renderer::{
-        debug_drawing::DebugLinesComponent,
-        palette::{Pixel, Srgba},
-        Camera, Sprite, SpriteRender, SpriteSheet, Texture, Transparent,
-    },
-    ui::{FontAsset, FontHandle, TtfFormat, UiCreator, UiTransformBuilder, UiWidget},
-    window::ScreenDimensions,
+    ui::UiCreator,
+    ui::UiTransform,
 };
 
-use crate::{
-    area::{get_screen_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
-    texture::create_texture,
-};
+use crate::game::Regular;
 
-pub struct MainMenu;
+#[derive(Default)]
+pub struct MainMenu {
+    ui_entity: Option<Entity>,
+}
 
 impl SimpleState for MainMenu {
+    fn handle_event(
+        &mut self,
+        _data: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+        if let StateEvent::Window(event) = event {
+            if is_key_down(&event, VirtualKeyCode::P) {
+                return Trans::Push(Box::new(Regular::default()));
+            } else if [VirtualKeyCode::Q, VirtualKeyCode::Escape]
+                .iter()
+                .any(|&key| is_key_down(&event, key))
+            {
+                return Trans::Quit;
+            }
+        }
+
+        Trans::None
+    }
+
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
-        // world.register::<Fonts>();
-
-        // init_fonts(world);
-
         world.exec(|mut creator: UiCreator<'_>| {
-            creator.create("ui/mainmenu.ron", ());
+            self.ui_entity = Some(creator.create("ui/mainmenu.ron", ()));
         });
+    }
+
+    fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        if let Some(ui) = self.ui_entity {
+            let world = data.world;
+
+            hide_entity_and_children(ui, world);
+        }
     }
 }
 
+fn hide_entity_and_children(current_entity: Entity, world: &mut World) {
+    for ent in find_children(current_entity, world) {
+        hide_entity_and_children(ent, world);
+    }
 
-#[derive(Debug, Default)]
-/// Center of UI element, used as a parent to group elements with a common transform.
-pub struct Center;
-
-impl Component for Center {
-    type Storage = NullStorage<Self>;
+    let mut hidden_store = world.write_storage::<Hidden>();
+    hidden_store
+        .insert(current_entity, Hidden)
+        .expect("could not access Hidden entity storage");
 }
 
+fn find_children(current_entity: Entity, world: &World) -> Vec<Entity> {
+    let entities = world.read_resource::<EntitiesRes>();
+    let parents = world.read_storage::<Parent>();
+    let ui_transforms = world.read_storage::<UiTransform>();
 
-#[derive(Debug)]
-pub struct Fonts {
-    menu: FontHandle,
-}
-
-fn init_fonts(world: &mut World) {
-    let fonts = Fonts {
-        menu: world.read_resource::<Loader>().load(
-            "fonts/LeagueMono-Medium.ttf",
-            TtfFormat,
-            (),
-            &world.read_resource(),
-        ),
-    };
-
-    world.add_resource(fonts);
-}
-
-fn draw_main_menu(world: &mut World) {
-    // let (width, height) = {
-    //     let dimensions = world.read_resource::<ScreenDimensions>();
-    //     (dimensions.width(), dimensions.height())
-    // };
-
-    // let xmargin = 
-    let fonts = world.read_resource::<Fonts>();
-    let menu_font_handle = fonts.menu.clone();
-
-    // let mut selection_widget = UiWidget::Container {
-    //     transform: UiTransformBuilder::new()
-    // }
-    // let mut selection_widget = Ui
+    (&*entities, &parents, &ui_transforms)
+        .join()
+        .filter(|(_, Parent { entity: parent }, _)| parent == &current_entity)
+        .map(|(child, _, _)| child)
+        .collect::<Vec<_>>()
 }

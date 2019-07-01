@@ -1,6 +1,6 @@
 use amethyst::{
     assets::{AssetStorage, Loader},
-    core::transform::Transform,
+    core::{transform::Transform, ArcThreadPool, SystemBundle},
     ecs::prelude::{Component, DenseVecStorage, NullStorage},
     prelude::*,
     renderer::{
@@ -8,11 +8,13 @@ use amethyst::{
         palette::{Pixel, Srgba},
         Camera, Sprite, SpriteRender, SpriteSheet, Texture, Transparent,
     },
+    shred::{Dispatcher, DispatcherBuilder},
     window::ScreenDimensions,
 };
 
 use crate::{
     area::{get_screen_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
+    bundle::MovementSystemsBundle,
     texture::create_texture,
 };
 
@@ -28,19 +30,16 @@ impl Component for PlayerCharacter {
     type Storage = NullStorage<Self>;
 }
 
-// #[derive(Default)]
-// struct Collision;
-
-// impl Component for Collision {
-//     type Storage = NullStorage<Self>;
-// }
-
 #[derive(Default)]
-pub struct Regular;
+pub struct Regular<'a, 'b> {
+    dispatcher: Option<Dispatcher<'a, 'b>>,
+}
 
-impl SimpleState for Regular {
+impl<'a, 'b> SimpleState for Regular<'a, 'b> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
+
+        self.dispatcher = Some(setup_game_system_dispatcher(world));
 
         init_area(40, 20, world);
         init_player_character(20, 10, world);
@@ -49,6 +48,30 @@ impl SimpleState for Regular {
         // Debug grid
         draw_area_grid(world);
     }
+
+    fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
+        if let Some(dispatcher) = self.dispatcher.as_mut() {
+            dispatcher.dispatch(&data.world.res);
+        }
+
+        Trans::None
+    }
+}
+
+fn setup_game_system_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b> {
+    let mut dispatcher_builder = DispatcherBuilder::new();
+
+    MovementSystemsBundle
+        .build(&mut dispatcher_builder)
+        .expect("failed to register MoveSystemsBundle");
+
+    let mut dispatcher = dispatcher_builder
+        .with_pool(world.read_resource::<ArcThreadPool>().clone())
+        .build();
+
+    dispatcher.setup(&mut world.res);
+
+    dispatcher
 }
 
 fn init_camera(x: u32, y: u32, world: &mut World) {
