@@ -11,7 +11,10 @@ use amethyst::{
     window::ScreenDimensions,
 };
 
-use crate::{area::*, texture::create_texture};
+use crate::{
+    area::{get_screen_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
+    texture::create_texture,
+};
 
 const DEBUG_SPRITE_LAYER: f32 = -1.0;
 const BACKGROUND_SPRITE_LAYER: f32 = 0.0;
@@ -33,7 +36,7 @@ impl Component for PlayerCharacter {
 // }
 
 #[derive(Default)]
-pub struct Regular {}
+pub struct Regular;
 
 impl SimpleState for Regular {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {

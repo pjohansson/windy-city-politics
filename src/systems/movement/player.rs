@@ -45,6 +45,7 @@ impl<'s> System<'s> for PlayerMovementSystem {
             .axis_value("move_horizontal")
             .map(|v| v as i32)
             .unwrap_or(0);
+
         let dy = input
             .axis_value("move_vertical")
             .map(|v| v as i32)

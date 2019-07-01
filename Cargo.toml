@@ -1,5 +1,5 @@
 [package]
-name = "game"
+name = "windy-city-politics"
 version = "0.1.0"
 authors = ["Petter Johansson <pettjoha@kth.se>"]
 edition = "2018"

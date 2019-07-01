@@ -68,12 +68,7 @@ impl GraphCreator<DefaultBackend> for ExampleGraph {
             window_kind,
             1,
             surface_format,
-            // Clear screen to green (black)
-            // Some(ClearValue::Color([24. / 255., 57. / 255., 43. / 255., 1.].into())),
-            Some(ClearValue::Color(
-                [8. / 255., 8. / 255., 8. / 255., 1.].into(),
-            )),
-            // Some(ClearValue::Color([0., 0., 0., 1.].into())),
+            Some(ClearValue::Color([0., 0., 0., 1.].into())),
         );
 
         let depth = graph_builder.create_image(
@@ -87,7 +82,6 @@ impl GraphCreator<DefaultBackend> for ExampleGraph {
         // We pass the subpass builder a description of our pass for construction.
         let pass = graph_builder.add_node(
             SubpassBuilder::new()
-                // .with_group(DrawFlat2DDesc::new().builder())
                 .with_group(DrawFlat2DTransparentDesc::new().builder())
                 .with_group(DrawUiDesc::default().builder())
                 // DEBUG

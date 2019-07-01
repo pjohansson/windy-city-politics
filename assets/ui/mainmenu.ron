@@ -1,0 +1,155 @@
+#![enable(implicit_some)]
+Container(
+    transform: (
+        id: "menu_container",
+        anchor: Middle,
+        stretch: XY(x_margin: 0.0, y_margin: 0.0, keep_aspect_ratio: false),
+        width: 20.0,
+        height: 20.0,
+    ),
+    background: SolidColor(0.06, 0.06, 0.06, 1.0),
+    children: [
+        // Centered container for the menu content
+        Container(
+            transform: (
+                id: "menu_content_container",
+                anchor: Middle,
+                stretch: XY(x_margin: 120.0, y_margin: 60.0, keep_aspect_ratio: false),
+                y: -60.0,
+                width: 20.0,
+                height: 20.0,
+            ),
+            children: [
+                Label(
+                    transform: (
+                        id: "menu_game_title",
+                        anchor: TopMiddle,
+                        y: -50.0,
+                        width: 500.0,
+                        height: 50.0,
+                    ),
+                    text: (
+                        text: "Windy City Politics",
+                        font_size: 48.0,
+                        color: (0.443, 1.0, 0.765, 1.0),
+                        font: File("fonts/LeagueMono-Medium.ttf", ("TTF", ())),
+                        align: BottomMiddle,
+                    ),
+                ),
+
+                // All the menu options in a list
+                Container(
+                    transform: (
+                        id: "menu_selection",
+                        anchor: Middle,
+                        stretch: X(x_margin: 200.0),
+                        y: -60.0,
+                        width: 20.0,
+                        height: 300.0,
+                    ),
+                    children: [
+                        // Play game
+                        Container(
+                            transform: (
+                                id: "menu_selection_play_game",
+                                anchor: TopLeft,
+                                pivot: MiddleLeft,
+                                stretch: X(x_margin: 0.0),
+                                y: 0.0,
+                                width: 20.0,
+                                height: 80.0,
+                            ),
+                            children: [
+                                Label(
+                                    transform: (
+                                        id: "menu_play_game_command",
+                                        anchor: MiddleLeft,
+                                        stretch: Y(y_margin: 0.0),
+                                        x: 20.0,
+                                        width: 20.0,
+                                        height: 20.0,
+                                    ),
+                                    text: (
+                                        text: "p",
+                                        font_size: 28.0,
+                                        color: (0.443, 1.0, 0.765, 1.0),
+                                        font: File("fonts/LeagueMono-Medium.ttf", ("TTF", ())),
+                                        align: MiddleRight,
+                                    ),
+                                ),
+                                Label(
+                                    transform: (
+                                        id: "menu_play_game_label",
+                                        anchor: MiddleLeft,
+                                        pivot: MiddleLeft,
+                                        stretch: Y(y_margin: 0.0),
+                                        x: 70.0,
+                                        width: 200.0,
+                                        height: 20.0,
+                                    ),
+                                    text: (
+                                        text: "Play game",
+                                        font_size: 28.0,
+                                        color: (1.0, 1.0, 1.0, 1.0),
+                                        font: File("fonts/LeagueMono-Medium.ttf", ("TTF", ())),
+                                        align: MiddleLeft,
+                                    ),
+                                ),
+                            ],
+                        ),
+
+                        // Quit to desktop
+                        Container(
+                            transform: (
+                                id: "menu_selection_quit",
+                                anchor: TopLeft,
+                                pivot: MiddleLeft,
+                                stretch: X(x_margin: 0.0),
+                                y: -80.0,
+                                width: 20.0,
+                                height: 80.0,
+                            ),
+                            children: [
+                                Label(
+                                    transform: (
+                                        id: "menu_quit_command",
+                                        anchor: MiddleLeft,
+                                        stretch: Y(y_margin: 0.0),
+                                        x: 20.0,
+                                        width: 20.0,
+                                        height: 20.0,
+                                    ),
+                                    text: (
+                                        text: "q",
+                                        font_size: 28.0,
+                                        color: (0.443, 1.0, 0.765, 1.0),
+                                        font: File("fonts/LeagueMono-Medium.ttf", ("TTF", ())),
+                                        align: MiddleRight,
+                                    ),
+                                ),
+                                Label(
+                                    transform: (
+                                        id: "menu_quit_label",
+                                        anchor: MiddleLeft,
+                                        pivot: MiddleLeft,
+                                        stretch: Y(y_margin: 0.0),
+                                        x: 70.0,
+                                        width: 200.0,
+                                        height: 20.0,
+                                    ),
+                                    text: (
+                                        text: "Quit",
+                                        font_size: 28.0,
+                                        color: (1.0, 1.0, 1.0, 1.0),
+                                        font: File("fonts/LeagueMono-Medium.ttf", ("TTF", ())),
+                                        align: MiddleLeft,
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ],
+)

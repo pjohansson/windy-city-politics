@@ -1,4 +1,5 @@
 (
-    title: "Untitled Not-Goose Game",
-    dimensions: Some((960, 720)),
+    title: "Windy City Politics",
+    // dimensions: Some((960, 720)),
+    dimensions: Some((1280, 720)),
 )
