@@ -6,7 +6,10 @@ use amethyst::{
     shred::DispatcherBuilder,
 };
 
-use crate::systems::{CameraMovementSystem, PlayerMovementSystem};
+use crate::systems::{
+    CameraMovementSystem, PlayerMovementSystem, UpdateCharTileTransformsSystem,
+    UpdateTransformsSystem,
+};
 
 pub struct SpriteBundle;
 
@@ -33,10 +36,18 @@ impl<'a, 'b> SystemBundle<'a, 'b> for MovementSystemsBundle {
     fn build(self, builder: &mut DispatcherBuilder<'a, 'b>) -> Result<(), Error> {
         builder.add(PlayerMovementSystem, "player_movement_system", &[]);
         builder.add(
-            CameraMovementSystem {
-                reader: Option::None,
-            },
+            CameraMovementSystem { reader: None },
             "camera_movement_system",
+            &["player_movement_system"],
+        );
+        builder.add(
+            UpdateCharTileTransformsSystem { reader: None },
+            "update_char_tile_transforms_system",
+            &["player_movement_system", "camera_movement_system"],
+        );
+        builder.add(
+            UpdateTransformsSystem { reader: None },
+            "update_sprite_transforms_system",
             &["player_movement_system"],
         );
 

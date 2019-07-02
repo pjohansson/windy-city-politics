@@ -1,9 +1,11 @@
 mod camera;
 mod player;
+pub mod update_transforms;
 mod utils;
 
 pub use camera::CameraMovementSystem;
 pub use player::PlayerMovementSystem;
+pub use update_transforms::{UpdateCharTileTransformsSystem, UpdateTransformsSystem};
 
 #[derive(Debug)]
 /// Event emitted if the player character has done something.

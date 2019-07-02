@@ -1,5 +1,4 @@
 use amethyst::{
-    core::Transform,
     ecs::prelude::{
         Join, Read, ReadExpect, ReadStorage, Resources, System, SystemData, WriteStorage,
     },
@@ -10,7 +9,7 @@ use amethyst::{
 use crate::area::{Area, CurrentArea, Position};
 
 use super::{
-    utils::{clamp_position, update_position, update_transform},
+    utils::{clamp_position, update_position},
     Action, PlayerActionEvent,
 };
 
@@ -18,7 +17,7 @@ use super::{
 const CAMERA_AREA_EDGE_BUFFER_WIDTH_X: u32 = 17;
 const CAMERA_AREA_EDGE_BUFFER_WIDTH_Y: u32 = 7;
 
-/// System to move the camera along with the player character.
+/// Moves the `Camera` along with the player character.
 pub struct CameraMovementSystem {
     pub reader: Option<ReaderId<PlayerActionEvent>>,
 }
@@ -26,7 +25,6 @@ pub struct CameraMovementSystem {
 impl<'s> System<'s> for CameraMovementSystem {
     type SystemData = (
         WriteStorage<'s, Position>,
-        WriteStorage<'s, Transform>,
         ReadStorage<'s, Camera>,
         ReadExpect<'s, CurrentArea>,
         ReadStorage<'s, Area>,
@@ -35,14 +33,7 @@ impl<'s> System<'s> for CameraMovementSystem {
 
     fn run(
         &mut self,
-        (
-            mut positions,
-            mut transforms,
-            cameras,
-            current_area,
-            areas,
-            event_channel
-        ): Self::SystemData,
+        (mut positions, cameras, current_area, areas, event_channel): Self::SystemData,
     ) {
         for action in event_channel.read(self.reader.as_mut().unwrap()) {
             if let PlayerActionEvent(Action::Move(direction)) = action {
@@ -53,9 +44,8 @@ impl<'s> System<'s> for CameraMovementSystem {
                     CAMERA_AREA_EDGE_BUFFER_WIDTH_Y,
                 );
 
-                for (position, transform, _) in (&mut positions, &mut transforms, &cameras).join() {
+                for (position, _) in (&mut positions, &cameras).join() {
                     update_position(position, direction, &[min_x, min_y, max_x, max_y]);
-                    update_transform(transform, position);
                 }
             }
         }

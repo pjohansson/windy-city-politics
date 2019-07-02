@@ -1,5 +1,4 @@
 use amethyst::{
-    core::Transform,
     ecs::prelude::{Join, Read, ReadExpect, ReadStorage, System, Write, WriteStorage},
     input::{InputHandler, StringBindings},
     shrev::EventChannel,
@@ -10,18 +9,14 @@ use crate::{
     game::PlayerCharacter,
 };
 
-use super::{
-    utils::{update_position, update_transform},
-    Action, Move, PlayerActionEvent,
-};
+use super::{utils::update_position, Action, Move, PlayerActionEvent};
 
-/// System to move the player on an area grid.
+/// Moves the `PlayerCharacter` inside the current active `Area`.
 pub struct PlayerMovementSystem;
 
 impl<'s> System<'s> for PlayerMovementSystem {
     type SystemData = (
         WriteStorage<'s, Position>,
-        WriteStorage<'s, Transform>,
         Write<'s, EventChannel<PlayerActionEvent>>,
         ReadStorage<'s, PlayerCharacter>,
         ReadExpect<'s, CurrentArea>,
@@ -31,15 +26,7 @@ impl<'s> System<'s> for PlayerMovementSystem {
 
     fn run(
         &mut self,
-        (
-            mut positions,
-            mut transforms,
-            mut event_channel,
-            character,
-            current_area,
-            areas,
-            input
-        ): Self::SystemData,
+        (mut positions, mut events, character, current_area, areas, input): Self::SystemData,
     ) {
         let dx = input
             .axis_value("move_horizontal")
@@ -64,12 +51,11 @@ impl<'s> System<'s> for PlayerMovementSystem {
             let max_x = area_size_x.saturating_sub(1);
             let max_y = area_size_y.saturating_sub(1);
 
-            for (position, transform, _) in (&mut positions, &mut transforms, &character).join() {
+            for (position, _) in (&mut positions, &character).join() {
                 update_position(position, &direction, &[0, 0, max_x, max_y]);
-                update_transform(transform, position);
             }
 
-            event_channel.single_write(PlayerActionEvent(Action::Move(direction)));
+            events.single_write(PlayerActionEvent(Action::Move(direction)));
         }
     }
 }

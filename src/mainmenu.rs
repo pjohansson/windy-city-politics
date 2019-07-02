@@ -1,13 +1,17 @@
 use amethyst::{
+    assets::{AssetStorage, Loader},
     core::{transform::Parent, Hidden},
     ecs::{world::EntitiesRes, Entity, Join},
     input::{is_key_down, VirtualKeyCode},
     prelude::*,
-    ui::UiCreator,
-    ui::UiTransform,
+    ui::{FontAsset, FontHandle, TtfFormat, UiCreator, UiTransform},
 };
 
 use crate::game::Regular;
+
+pub struct Fonts {
+    pub main: FontHandle,
+}
 
 #[derive(Default)]
 pub struct MainMenu {
@@ -40,6 +44,10 @@ impl SimpleState for MainMenu {
         world.exec(|mut creator: UiCreator<'_>| {
             self.ui_entity = Some(creator.create("ui/mainmenu.ron", ()));
         });
+
+        // TODO: Move asset loading elsewhere
+        let fonts = load_fonts(world);
+        world.add_resource(fonts);
     }
 
     fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -48,6 +56,15 @@ impl SimpleState for MainMenu {
 
             hide_entity_and_children(ui, world);
         }
+    }
+}
+
+fn load_fonts(world: &mut World) -> Fonts {
+    let loader = world.read_resource::<Loader>();
+    let store = world.read_resource::<AssetStorage<FontAsset>>();
+
+    Fonts {
+        main: loader.load("fonts/LeagueMono-Regular.ttf", TtfFormat, (), &store),
     }
 }
 

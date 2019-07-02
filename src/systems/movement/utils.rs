@@ -1,6 +1,4 @@
-use amethyst::core::Transform;
-
-use crate::area::{get_screen_coordinates, Position};
+use crate::area::Position;
 
 use super::Move;
 
@@ -16,13 +14,6 @@ pub fn update_position(
         Move::Left => position.x = clamp_position(position.x as i32 - 1, *min_x, *max_x),
         Move::Right => position.x = clamp_position(position.x as i32 + 1, *min_x, *max_x),
     }
-}
-
-/// Update transform translation to position.
-pub fn update_transform(transform: &mut Transform, position: &Position) {
-    let (x, y) = get_screen_coordinates(position.x, position.y);
-    transform.set_translation_x(x);
-    transform.set_translation_y(y);
 }
 
 /// Clamp input value to the range [min, max]. Assumes that max >= min.

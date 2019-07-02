@@ -1,20 +1,26 @@
 use amethyst::{
     assets::{AssetStorage, Loader},
     core::{transform::Transform, ArcThreadPool, SystemBundle},
-    ecs::prelude::{Component, DenseVecStorage, NullStorage},
+    ecs::prelude::{Component, DenseVecStorage, NullStorage, VecStorage},
     prelude::*,
     renderer::{
         debug_drawing::DebugLinesComponent,
         palette::{Pixel, Srgba},
-        Camera, Sprite, SpriteRender, SpriteSheet, Texture, Transparent,
+        ActiveCamera, Camera, Sprite, SpriteRender, SpriteSheet, Texture, Transparent,
     },
     shred::{Dispatcher, DispatcherBuilder},
+    ui::*,
     window::ScreenDimensions,
 };
 
 use crate::{
-    area::{get_screen_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
+    area::{get_world_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
     bundle::MovementSystemsBundle,
+    mainmenu::Fonts,
+    render::get_screen_center_coordinates,
+    systems::movement::update_transforms::{
+        get_active_camera_position, get_screen_absolute_coordinates_for_entity_grid_position,
+    },
     texture::create_texture,
 };
 
@@ -42,8 +48,8 @@ impl<'a, 'b> SimpleState for Regular<'a, 'b> {
         self.dispatcher = Some(setup_game_system_dispatcher(world));
 
         init_area(40, 20, world);
-        init_player_character(20, 10, world);
         init_camera(20, 10, world);
+        init_player_character(20, 10, world);
 
         // Debug grid
         draw_area_grid(world);
@@ -80,16 +86,20 @@ fn init_camera(x: u32, y: u32, world: &mut World) {
         (dimensions.width(), dimensions.height())
     };
 
-    let (xs, ys) = get_screen_coordinates(x, y);
+    let (xs, ys) = get_world_coordinates(x, y);
     let mut transform = Transform::default();
     transform.set_translation_xyz(xs, ys, CAMERA_POSITION_Z);
 
-    world
+    let camera = world
         .create_entity()
         .with(Camera::standard_2d(width, height))
         .with(Position { x, y })
         .with(transform)
         .build();
+
+    *world.write_resource::<ActiveCamera>() = ActiveCamera {
+        entity: Some(camera),
+    };
 }
 
 fn init_area(size_x: u32, size_y: u32, world: &mut World) {
@@ -104,62 +114,42 @@ fn init_area(size_x: u32, size_y: u32, world: &mut World) {
 }
 
 fn init_player_character(x: u32, y: u32, world: &mut World) {
-    let (xs, ys) = get_screen_coordinates(x, y);
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(xs, ys, PLAYER_SPRITE_LAYER);
+    let transform = {
+        let screen_center =
+            get_screen_center_coordinates(&world.read_resource::<ScreenDimensions>());
 
-    let texture = {
-        let loader = world.read_resource::<Loader>();
-        let store = world.read_resource::<AssetStorage<Texture>>();
-
-        // Checkerboard pattern by reversing every other row
-        let pair = [[210, 210, 210, 255], [0, 0, 0, 0]];
-        let row = pair.iter().cycle().take(TILE_WIDTH as usize);
-        let row_reversed = pair.iter().rev().cycle().take(TILE_WIDTH as usize);
-
-        let data = row
-            .chain(row_reversed)
-            .cycle()
-            .take((TILE_WIDTH * TILE_HEIGHT) as usize)
-            .cloned()
-            .collect::<Vec<_>>();
-
-        create_texture(&data, (TILE_WIDTH, TILE_HEIGHT), &store, &loader, ()).unwrap()
-    };
-
-    let sprite_sheet = {
-        let loader = world.read_resource::<Loader>();
-        let store = world.read_resource::<AssetStorage<SpriteSheet>>();
-
-        let sprite = Sprite::from_pixel_values(
-            TILE_WIDTH,
-            TILE_HEIGHT,
-            TILE_WIDTH,
-            TILE_HEIGHT,
-            0,
-            0,
-            [-((TILE_WIDTH / 2) as f32), -((TILE_HEIGHT / 2) as f32)],
-            false,
-            false,
+        let camera_position = get_active_camera_position(
+            &world.read_resource::<ActiveCamera>(),
+            &world.read_storage::<Position>(),
         );
 
-        let data = SpriteSheet {
-            texture,
-            sprites: vec![sprite],
-        };
+        let (xs, ys) = get_screen_absolute_coordinates_for_entity_grid_position(
+            screen_center,
+            &camera_position,
+            &Position { x, y },
+        );
 
-        loader.load_from_data(data, (), &store)
+        UiTransform::new(
+            "player_character".to_string(),
+            Anchor::BottomLeft,
+            Anchor::Middle,
+            xs,
+            ys,
+            PLAYER_SPRITE_LAYER,
+            TILE_WIDTH as f32,
+            TILE_HEIGHT as f32,
+        )
     };
+
+    let font = world.read_resource::<Fonts>().main.clone();
+    let text = UiText::new(font, "@".to_string(), [1.0, 1.0, 1.0, 1.0], 24.0);
 
     world
         .create_entity()
         .with(transform)
         .with(PlayerCharacter)
         .with(Position { x, y })
-        .with(SpriteRender {
-            sprite_sheet,
-            sprite_number: 0,
-        })
+        .with(text)
         .with(Transparent)
         .build();
 }
@@ -170,7 +160,7 @@ fn draw_area_grid(world: &mut World) {
         world.read_storage::<Area>().get(entity).unwrap().dimensions
     };
 
-    let (size_x, size_y) = get_screen_coordinates(nx, ny);
+    let (size_x, size_y) = get_world_coordinates(nx, ny);
 
     let mut debug_lines = DebugLinesComponent::new();
 

@@ -1,3 +1,6 @@
-mod movement;
+pub mod movement;
 
-pub use movement::{CameraMovementSystem, PlayerMovementSystem};
+pub use movement::{
+    CameraMovementSystem, PlayerMovementSystem, UpdateCharTileTransformsSystem,
+    UpdateTransformsSystem,
+};

@@ -98,3 +98,10 @@ impl GraphCreator<DefaultBackend> for ExampleGraph {
         graph_builder
     }
 }
+
+pub fn get_screen_center_coordinates(dimensions: &ScreenDimensions) -> (f32, f32) {
+    (
+        (dimensions.width() / 2.0).trunc(),
+        (dimensions.height() / 2.0).trunc(),
+    )
+}
