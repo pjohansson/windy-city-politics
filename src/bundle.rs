@@ -1,16 +1,9 @@
 use amethyst::{
-    assets::{PrefabLoaderSystem, Processor},
+    assets::Processor,
     core::SystemBundle,
     error::Error,
     renderer::{sprite_visibility::SpriteVisibilitySortingSystem, SpriteSheet},
     shred::DispatcherBuilder,
-};
-
-use crate::{
-    systems::{
-        CameraMovementSystem, PlayerMovementSystem, UpdateCharTileTransformsSystem,
-        UpdateTransformsSystem,
-    },
 };
 
 pub struct SpriteBundle;

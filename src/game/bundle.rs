@@ -1,16 +1,10 @@
 use amethyst::{
-    assets::{PrefabLoaderSystem, Processor},
-    core::SystemBundle,
-    error::Error,
-    renderer::{sprite_visibility::SpriteVisibilitySortingSystem, SpriteSheet},
-    shred::DispatcherBuilder,
+    assets::PrefabLoaderSystem, core::SystemBundle, error::Error, shred::DispatcherBuilder,
 };
 
-use crate::{
-    systems::{
-        CameraMovementSystem, PlayerMovementSystem, UpdateCharTileTransformsSystem,
-        UpdateTransformsSystem,
-    },
+use crate::systems::{
+    CameraMovementSystem, PlayerMovementSystem, UpdateCharTileTransformsSystem,
+    UpdateTransformsSystem,
 };
 
 use super::character::PlayerCharacterPrefab;
@@ -45,9 +39,9 @@ pub struct PrefabLoaderBundle;
 impl<'a, 'b> SystemBundle<'a, 'b> for PrefabLoaderBundle {
     fn build(self, builder: &mut DispatcherBuilder<'a, 'b>) -> Result<(), Error> {
         builder.add(
-            PrefabLoaderSystem::<PlayerCharacterPrefab>::default(), 
-            "character_prefab_loader", 
-            &[]
+            PrefabLoaderSystem::<PlayerCharacterPrefab>::default(),
+            "character_prefab_loader",
+            &[],
         );
 
         Ok(())

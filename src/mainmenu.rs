@@ -1,5 +1,5 @@
 use amethyst::{
-    assets::{AssetStorage, Loader, PrefabLoader, RonFormat},
+    assets::{AssetStorage, Loader},
     core::{transform::Parent, Hidden},
     ecs::{world::EntitiesRes, Entity, Join},
     input::{is_key_down, VirtualKeyCode},
@@ -8,10 +8,6 @@ use amethyst::{
 };
 
 use crate::game::*;
-
-pub struct Fonts {
-    pub main: FontHandle,
-}
 
 #[derive(Default)]
 pub struct MainMenu {
@@ -26,7 +22,7 @@ impl SimpleState for MainMenu {
     ) -> SimpleTrans {
         if let StateEvent::Window(event) = event {
             if is_key_down(&event, VirtualKeyCode::P) {
-                return Trans::Push(Box::new(Regular::default()));
+                return Trans::Push(Box::new(Loading::default()));
             } else if [VirtualKeyCode::Q, VirtualKeyCode::Escape]
                 .iter()
                 .any(|&key| is_key_down(&event, key))
@@ -44,10 +40,6 @@ impl SimpleState for MainMenu {
         world.exec(|mut creator: UiCreator<'_>| {
             self.ui_entity = Some(creator.create("ui/mainmenu.ron", ()));
         });
-
-        // TODO: Move asset loading elsewhere
-        let fonts = load_fonts(world);
-        world.add_resource(fonts);
     }
 
     fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -56,15 +48,6 @@ impl SimpleState for MainMenu {
 
             hide_entity_and_children(ui, world);
         }
-    }
-}
-
-fn load_fonts(world: &mut World) -> Fonts {
-    let loader = world.read_resource::<Loader>();
-    let store = world.read_resource::<AssetStorage<FontAsset>>();
-
-    Fonts {
-        main: loader.load("fonts/LeagueMono-Regular.ttf", TtfFormat, (), &store),
     }
 }
 
