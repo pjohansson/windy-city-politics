@@ -1,5 +1,7 @@
 use amethyst::{
-    assets::{AssetStorage, Completion, Handle, Loader, Prefab, PrefabLoader, ProgressCounter, RonFormat},
+    assets::{
+        AssetStorage, Completion, Handle, Loader, Prefab, PrefabLoader, ProgressCounter, RonFormat,
+    },
     core::{ArcThreadPool, SystemBundle},
     ecs::{world::EntitiesRes, Join, Read, ReadExpect, ReadStorage, WriteStorage},
     prelude::*,
@@ -59,22 +61,21 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
         }
 
         match self.progress.complete() {
-            Completion::Complete => {
-                Trans::Switch(Box::new(Regular::default()))
-            },
+            Completion::Complete => Trans::Switch(Box::new(Regular::default())),
             Completion::Failed => {
                 panic!("could not read all required assets");
-            },
-            Completion::Loading => {
-                Trans::None
             }
+            Completion::Loading => Trans::None,
         }
     }
 }
 
 fn load_character_entities(world: &mut World) {
     let handle = {
-        world.read_resource::<PrefabLoaderHandles>().player_character.clone()
+        world
+            .read_resource::<PrefabLoaderHandles>()
+            .player_character
+            .clone()
     };
 
     world.create_entity().with(handle).build();

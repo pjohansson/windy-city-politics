@@ -154,17 +154,19 @@ fn init_player_character(x: u32, y: u32, world: &mut World) {
         Read<'a, EntitiesRes>,
     );
 
-    world.exec(|(mut transforms, mut positions, chars, entities): SystemData| {
-        for (_, entity) in (&chars, &entities).join() {
-            transforms
-                .insert(entity, transform.clone())
-                .expect("could not insert character `Transform` component");
+    world.exec(
+        |(mut transforms, mut positions, chars, entities): SystemData| {
+            for (_, entity) in (&chars, &entities).join() {
+                transforms
+                    .insert(entity, transform.clone())
+                    .expect("could not insert character `Transform` component");
 
-            positions
-                .insert(entity, Position { x, y })
-                .expect("could not insert character `Position` component");
-}
-    });
+                positions
+                    .insert(entity, Position { x, y })
+                    .expect("could not insert character `Position` component");
+            }
+        },
+    );
 }
 
 fn draw_area_grid(world: &mut World) {
