@@ -6,7 +6,7 @@ titled *5 Star Creatives 5 Star Jam Times*.
 
 ## Meta
 
-* Version:  0.1.1
+* Version:  0.1.2
 * Web site: https://toppform.itch.io/windy-city-politics
 * Jam site: https://itch.io/jam/waypoint-2019
 
@@ -19,7 +19,7 @@ titled *5 Star Creatives 5 Star Jam Times*.
 
 ## Troubleshooting
 
-* `windy-city-politics.exe` must be in the same folder as the `assets` 
+* Ensure that `windy-city-politics.exe` is in the same folder as the `assets` 
   and `resources` folders.
 
 
