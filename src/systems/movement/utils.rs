@@ -1,4 +1,4 @@
-use crate::area::Position;
+use crate::game::Position;
 
 use super::Move;
 

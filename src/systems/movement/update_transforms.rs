@@ -10,7 +10,7 @@ use amethyst::{
 };
 
 use crate::{
-    area::{get_world_coordinates, Position, TILE_HEIGHT, TILE_WIDTH},
+    game::{get_world_coordinates, Position, TILE_HEIGHT, TILE_WIDTH},
     render::get_screen_center_coordinates,
 };
 
@@ -22,7 +22,7 @@ use super::{Action, PlayerActionEvent};
 /// coordinates since UI elements are fixed on screen. We calculate this position
 /// first relative to the camera, then use the fact that the camera is centered
 /// in the screen to calculate the screen-absolute position.
-/// 
+///
 /// NOTE: Upcoming problem if a UI is added to occupy a slice of the screen since
 /// the camera will no longer be centered at the screen.
 ///

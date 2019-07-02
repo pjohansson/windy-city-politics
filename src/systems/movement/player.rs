@@ -5,8 +5,7 @@ use amethyst::{
 };
 
 use crate::{
-    area::{Area, CurrentArea, Position},
-    game::PlayerCharacter,
+    game::{Area, CurrentArea, Position, PlayerCharacter},
 };
 
 use super::{utils::update_position, Action, Move, PlayerActionEvent};

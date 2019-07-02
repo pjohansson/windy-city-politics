@@ -1,3 +1,5 @@
+//! `ExampleGraph` setup code written by the Amethyst team.
+
 use amethyst::{
     ecs::{ReadExpect, Resources, SystemData},
     renderer::{

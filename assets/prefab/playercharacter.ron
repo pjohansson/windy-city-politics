@@ -1,0 +1,11 @@
+#![enable(implicit_some)]
+Prefab(
+    entities: [
+        PrefabEntity(
+            data: PlayerCharacterPrefab(
+                character: CharacterChar('@'),
+                player_character: PlayerCharacter,
+            ),
+        ),
+    ],
+)

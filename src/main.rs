@@ -1,4 +1,3 @@
-mod area;
 mod bundle;
 mod game;
 mod mainmenu;

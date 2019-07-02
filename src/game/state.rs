@@ -1,7 +1,7 @@
 use amethyst::{
-    assets::{AssetStorage, Loader},
+    assets::{AssetStorage, Loader, PrefabLoader, ProgressCounter, RonFormat},
     core::{transform::Transform, ArcThreadPool, SystemBundle},
-    ecs::prelude::{Component, DenseVecStorage, NullStorage, VecStorage},
+    ecs::prelude::{Component, DenseVecStorage, Join, NullStorage, VecStorage},
     prelude::*,
     renderer::{
         debug_drawing::DebugLinesComponent,
@@ -9,13 +9,11 @@ use amethyst::{
         ActiveCamera, Camera, Sprite, SpriteRender, SpriteSheet, Texture, Transparent,
     },
     shred::{Dispatcher, DispatcherBuilder},
-    ui::*,
+    ui::{Anchor, UiText, UiTransform},
     window::ScreenDimensions,
 };
 
 use crate::{
-    area::{get_world_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
-    bundle::MovementSystemsBundle,
     mainmenu::Fonts,
     render::get_screen_center_coordinates,
     systems::movement::update_transforms::{
@@ -24,21 +22,21 @@ use crate::{
     texture::create_texture,
 };
 
+use super::{
+    area::{get_world_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
+    bundle::{MovementSystemsBundle, PrefabLoaderBundle},
+    character::*,
+};
+
 const DEBUG_SPRITE_LAYER: f32 = -1.0;
 const BACKGROUND_SPRITE_LAYER: f32 = 0.0;
 const PLAYER_SPRITE_LAYER: f32 = 1.0;
 const CAMERA_POSITION_Z: f32 = 10.0;
 
 #[derive(Default)]
-pub struct PlayerCharacter;
-
-impl Component for PlayerCharacter {
-    type Storage = NullStorage<Self>;
-}
-
-#[derive(Default)]
 pub struct Regular<'a, 'b> {
     dispatcher: Option<Dispatcher<'a, 'b>>,
+    progress: Option<ProgressCounter>,
 }
 
 impl<'a, 'b> SimpleState for Regular<'a, 'b> {
@@ -49,7 +47,7 @@ impl<'a, 'b> SimpleState for Regular<'a, 'b> {
 
         init_area(40, 20, world);
         init_camera(20, 10, world);
-        init_player_character(20, 10, world);
+        self.progress = Some(init_player_character(20, 10, world));
 
         // Debug grid
         draw_area_grid(world);
@@ -70,6 +68,10 @@ fn setup_game_system_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b>
     MovementSystemsBundle
         .build(&mut dispatcher_builder)
         .expect("failed to register MoveSystemsBundle");
+
+    PrefabLoaderBundle
+        .build(&mut dispatcher_builder)
+        .expect("failed to register PrefabLoaderBundle");
 
     let mut dispatcher = dispatcher_builder
         .with_pool(world.read_resource::<ArcThreadPool>().clone())
@@ -113,7 +115,16 @@ fn init_area(size_x: u32, size_y: u32, world: &mut World) {
     world.add_resource(CurrentArea(area));
 }
 
-fn init_player_character(x: u32, y: u32, world: &mut World) {
+fn init_player_character(x: u32, y: u32, world: &mut World) -> ProgressCounter {
+    let mut counter = ProgressCounter::new();
+    let prefab_handle = world.exec(|loader: PrefabLoader<'_, PlayerCharacterPrefab>| {
+        loader.load(
+            "prefab/playercharacter.ron",
+            RonFormat,
+            &mut counter,
+        )
+    });
+
     let transform = {
         let screen_center =
             get_screen_center_coordinates(&world.read_resource::<ScreenDimensions>());
@@ -147,11 +158,12 @@ fn init_player_character(x: u32, y: u32, world: &mut World) {
     world
         .create_entity()
         .with(transform)
-        .with(PlayerCharacter)
+        .with(prefab_handle)
         .with(Position { x, y })
         .with(text)
-        .with(Transparent)
         .build();
+
+    counter
 }
 
 fn draw_area_grid(world: &mut World) {

@@ -6,7 +6,7 @@ use amethyst::{
     shrev::{EventChannel, ReaderId},
 };
 
-use crate::area::{Area, CurrentArea, Position};
+use crate::game::{Area, CurrentArea, Position};
 
 use super::{
     utils::{clamp_position, update_position},

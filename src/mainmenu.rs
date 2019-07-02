@@ -1,5 +1,5 @@
 use amethyst::{
-    assets::{AssetStorage, Loader},
+    assets::{AssetStorage, Loader, PrefabLoader, RonFormat},
     core::{transform::Parent, Hidden},
     ecs::{world::EntitiesRes, Entity, Join},
     input::{is_key_down, VirtualKeyCode},
@@ -7,7 +7,7 @@ use amethyst::{
     ui::{FontAsset, FontHandle, TtfFormat, UiCreator, UiTransform},
 };
 
-use crate::game::Regular;
+use crate::game::*;
 
 pub struct Fonts {
     pub main: FontHandle,
