@@ -89,6 +89,8 @@ impl<'a> PrefabData<'a> for CharacterPrefab {
         _entities: &[Entity],
         _children: &[Entity],
     ) -> Result<Self::Result, Error> {
+        eprintln!("CharacterPrefab: creating entity {:?}", &entity);
+
         let (positions, glyphs, player_characters, names, ui_texts, ui_transforms, fonts) = data;
 
         let position = self.position.clone().unwrap_or(Position { x: 0, y: 0 });

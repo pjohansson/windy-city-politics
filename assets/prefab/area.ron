@@ -1,44 +1,9 @@
 #![enable(implicit_some)]
-Prefab(
+(
     entities: [
-        PrefabEntity(
+        (
             data: Area(
-                Area(
-                    dimensions: (48, 16),
-                ),
-            ),
-        ),
-        PrefabEntity(
-            data: Character(
-                CharacterPrefab(
-                    glyph: 'a',
-                    position: Position(x: 5, y: 8),
-                    variant: NonPlayerCharacter(
-                        name: "Alphonse",
-                    ),
-                ),
-            ),
-        ),
-        PrefabEntity(
-            data: Character(
-                CharacterPrefab(
-                    glyph: 't',
-                    position: Position(x: 12, y: 5),
-                    variant: NonPlayerCharacter(
-                        name: "Tara",
-                    ),
-                ),
-            ),
-        ),
-        PrefabEntity(
-            data: Character(
-                CharacterPrefab(
-                    glyph: 'm',
-                    position: Position(x: 15, y: 8),
-                    variant: NonPlayerCharacter(
-                        name: "Malik",
-                    ),
-                ),
+                    dimensions: (28, 20),
             ),
         ),
     ],

@@ -1,7 +1,7 @@
 #![enable(implicit_some)]
-Prefab(
+(
     entities: [
-        PrefabEntity(
+        (
             data: CharacterPrefab(
                 glyph: '@',
                 variant: PlayerCharacter,

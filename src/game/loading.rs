@@ -11,7 +11,7 @@ use amethyst::{
 use std::borrow::BorrowMut;
 
 use super::{
-    area::{AreaPrefab, CurrentArea, Position},
+    area::{Area, CurrentArea, Position},
     assets::load_fonts,
     bundle::PrefabLoaderBundle,
     character::{CharacterPrefab, PlayerCharacter},
@@ -20,7 +20,7 @@ use super::{
 };
 
 pub struct PrefabLoaderHandles {
-    pub area: Handle<Prefab<AreaPrefab>>,
+    pub area: Handle<Prefab<Area>>,
     pub character: Handle<Prefab<CharacterPrefab>>,
     pub player_character: Handle<Prefab<CharacterPrefab>>,
 }
@@ -131,11 +131,16 @@ fn init_camera(world: &mut World) {
 }
 
 fn load_area_entities(world: &mut World) {
+    let character_handle = world
+        .read_resource::<PrefabLoaderHandles>()
+        .character
+        .clone();
+    world.create_entity().with(character_handle).build();
+
     let area_handle = world.read_resource::<PrefabLoaderHandles>().area.clone();
+    let area_entity = world.create_entity().with(area_handle).build();
 
-    let entity = world.create_entity().with(area_handle).build();
-
-    world.add_resource(CurrentArea(entity));
+    world.add_resource(CurrentArea(area_entity));
 }
 
 fn load_player_character_entity(world: &mut World) {
@@ -149,7 +154,7 @@ fn load_player_character_entity(world: &mut World) {
 
 fn setup_prefab_loaders(world: &mut World, progress: &mut ProgressCounter) {
     let handles = {
-        let area = world.exec(|loader: PrefabLoader<'_, AreaPrefab>| {
+        let area = world.exec(|loader: PrefabLoader<'_, Area>| {
             loader.load("prefab/area.ron", RonFormat, progress.borrow_mut())
         });
 

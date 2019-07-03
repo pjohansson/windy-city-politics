@@ -1,13 +1,21 @@
 use amethyst::{
-    assets::{PrefabData, ProgressCounter},
+    assets::{AssetStorage, Loader, Prefab, PrefabData, PrefabLoader, ProgressCounter, RonFormat},
     derive::PrefabData,
-    ecs::prelude::{Component, DenseVecStorage, Entity, VecStorage, WriteStorage},
+    ecs::prelude::{
+        Component, DenseVecStorage, Entity, Read, ReadExpect, ReadStorage, VecStorage, Write,
+        WriteExpect, WriteStorage,
+    },
     Error,
 };
 
 use serde::{Deserialize, Serialize};
 
-use super::consts::{TILE_HEIGHT, TILE_WIDTH};
+use std::path::PathBuf;
+
+use super::{
+    character::CharacterPrefab,
+    consts::{TILE_HEIGHT, TILE_WIDTH},
+};
 
 pub struct CurrentArea(pub Entity);
 
@@ -38,20 +46,3 @@ impl Component for Position {
 pub fn get_world_coordinates(x: u32, y: u32) -> (f32, f32) {
     ((x * TILE_WIDTH) as f32, (y * TILE_HEIGHT) as f32)
 }
-
-use super::character::CharacterPrefab;
-
-#[derive(Debug, Deserialize, Serialize, PrefabData)]
-#[serde(deny_unknown_fields)]
-pub enum AreaPrefab {
-    Area(Area),
-    Character(CharacterPrefab),
-}
-
-// pub struct Collision {
-//     tiles: Vec<Position>,
-// }
-
-// impl Component for Collision {
-//     type Storage = VecStorage<Self>;
-// }

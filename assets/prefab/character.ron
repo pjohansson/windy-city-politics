@@ -1,30 +1,147 @@
 #![enable(implicit_some)]
-Prefab(
+(
     entities: [
-        PrefabEntity(
+        (
             data: CharacterPrefab(
                 glyph: 'a',
-                position: Position(x: 5, y: 8),
+                position: Position(x: 12, y: 17),
                 variant: NonPlayerCharacter(
-                    name: "Alphonse",
+                    name: "Austin",
                 ),
             ),
         ),
-        PrefabEntity(
+        (
             data: CharacterPrefab(
-                glyph: 't',
-                position: Position(x: 12, y: 5),
+                glyph: 'c',
+                position: Position(x: 13, y: 8),
                 variant: NonPlayerCharacter(
-                    name: "Tara",
+                    name: "Cado",
                 ),
             ),
         ),
-        PrefabEntity(
+        (
             data: CharacterPrefab(
-                glyph: 'm',
-                position: Position(x: 15, y: 8),
+                glyph: 'd',
+                position: Position(x: 5, y: 14),
                 variant: NonPlayerCharacter(
-                    name: "Malik",
+                    name: "Danielle",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'j',
+                position: Position(x: 6, y: 3),
+                variant: NonPlayerCharacter(
+                    name: "Joel",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'n',
+                position: Position(x: 2, y: 10),
+                variant: NonPlayerCharacter(
+                    name: "Natalie",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'p',
+                position: Position(x: 18, y: 8),
+                variant: NonPlayerCharacter(
+                    name: "Patrick",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'r',
+                position: Position(x: 10, y: 13),
+                variant: NonPlayerCharacter(
+                    name: "Rob",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'W',
+                position: Position(x: 10, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'A',
+                position: Position(x: 11, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'Y',
+                position: Position(x: 12, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'P',
+                position: Position(x: 13, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'O',
+                position: Position(x: 14, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'I',
+                position: Position(x: 15, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'N',
+                position: Position(x: 16, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: 'T',
+                position: Position(x: 17, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
+                ),
+            ),
+        ),
+        (
+            data: CharacterPrefab(
+                glyph: '!',
+                position: Position(x: 18, y: 1),
+                variant: NonPlayerCharacter(
+                    name: "",
                 ),
             ),
         ),

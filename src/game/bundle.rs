@@ -7,7 +7,7 @@ use crate::systems::{
     UpdateTransformsSystem,
 };
 
-use super::{area::AreaPrefab, character::CharacterPrefab};
+use super::{area::Area, character::CharacterPrefab};
 
 pub struct MovementSystemsBundle;
 
@@ -39,7 +39,7 @@ pub struct PrefabLoaderBundle;
 impl<'a, 'b> SystemBundle<'a, 'b> for PrefabLoaderBundle {
     fn build(self, builder: &mut DispatcherBuilder<'a, 'b>) -> Result<(), Error> {
         builder.add(
-            PrefabLoaderSystem::<AreaPrefab>::default(),
+            PrefabLoaderSystem::<Area>::default(),
             "area_prefab_loader",
             &[],
         );
