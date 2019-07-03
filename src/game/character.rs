@@ -54,15 +54,15 @@ enum CharacterVariant {
 ///
 /// For all characters:
 ///  * `Glyph`
-///  * `Position`       (defaults to (0, 0) if not specified)
+///  * `Position`       defaults to (0, 0) if not specified
 ///  * `UiText`         for rendering the character as the given glyph
-///  * `UiTransform`    (coordinates are not set, that's up to the rendering system
+///  * `UiTransform`    coordinates are not set, that's up to the rendering system
 ///
 /// For `PlayerCharacter` variant:
 ///  * `PlayerCharacter`
 ///
 /// For `NonPlayerCharacter` variant:
-///  * `Named` with the given name
+///  * `Named`          with the given name
 ///
 /// # Notes
 ///  * Requires the `Fonts` resource to exist.
@@ -89,8 +89,6 @@ impl<'a> PrefabData<'a> for CharacterPrefab {
         _entities: &[Entity],
         _children: &[Entity],
     ) -> Result<Self::Result, Error> {
-        eprintln!("CharacterPrefab: creating entity {:?}", &entity);
-
         let (positions, glyphs, player_characters, names, ui_texts, ui_transforms, fonts) = data;
 
         let position = self.position.clone().unwrap_or(Position { x: 0, y: 0 });

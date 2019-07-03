@@ -10,12 +10,7 @@ use amethyst::{
 
 use serde::{Deserialize, Serialize};
 
-use std::path::PathBuf;
-
-use super::{
-    character::CharacterPrefab,
-    consts::{TILE_HEIGHT, TILE_WIDTH},
-};
+use super::consts::{TILE_HEIGHT, TILE_WIDTH};
 
 pub struct CurrentArea(pub Entity);
 
