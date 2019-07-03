@@ -1,22 +1,28 @@
 use amethyst::{
     assets::{
-        AssetStorage, Completion, Handle, Loader, Prefab, PrefabLoader, ProgressCounter, RonFormat,
+        Completion, Handle, Prefab, PrefabLoader, ProgressCounter, RonFormat,
     },
-    core::{ArcThreadPool, SystemBundle},
+    core::{ArcThreadPool, SystemBundle, Transform},
     ecs::{world::EntitiesRes, Join, Read, ReadExpect, ReadStorage, WriteStorage},
     prelude::*,
+    renderer::{ActiveCamera, Camera},
     shred::{Dispatcher, DispatcherBuilder},
-    ui::{FontAsset, TtfFormat, UiText},
+    ui::{Anchor, UiText, UiTransform},
+    window::ScreenDimensions,
 };
 
 use std::borrow::BorrowMut;
 
 use super::{
-    area::TILE_HEIGHT,
+    area::{Position, TILE_HEIGHT, TILE_WIDTH},
+    assets::{load_fonts, Fonts},
     bundle::PrefabLoaderBundle,
     character::*,
-    state::{Fonts, Regular},
+    state::Regular,
 };
+
+const PLAYER_SPRITE_LAYER: f32 = 1.0;
+const CAMERA_POSITION_Z: f32 = 10.0;
 
 pub struct PrefabLoaderHandles {
     pub character: Handle<Prefab<CharacterPrefab>>,
@@ -55,7 +61,12 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
 
     fn on_stop(&mut self, data: StateData<GameData>) {
         let world = data.world;
+
         setup_character_ui_text_components(world);
+        setup_character_ui_transforms(world);
+        setup_character_positions(world);
+
+        init_camera(world);
     }
 
     fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
@@ -67,12 +78,43 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
             Completion::Complete => Trans::Switch(Box::new(Regular::default())),
             Completion::Failed => {
                 panic!("could not read all required assets");
-            },
-            Completion::Loading => {
-                Trans::None
-            },
+            }
+            Completion::Loading => Trans::None,
         }
     }
+}
+
+fn init_camera(world: &mut World) {
+    let (width, height) = {
+        let dimensions = world.read_resource::<ScreenDimensions>();
+        (dimensions.width(), dimensions.height())
+    };
+
+    let position = {
+        let positions = world.read_storage::<Position>();
+        let characters = world.read_storage::<PlayerCharacter>();
+
+        (&positions, &characters)
+            .join()
+            .map(|(position, _)| position)
+            .next()
+            .cloned()
+            .unwrap_or(Position { x: 0, y: 0 })
+    };
+
+    let mut transform = Transform::default();
+    transform.set_translation_z(CAMERA_POSITION_Z);
+
+    let camera = world
+        .create_entity()
+        .with(Camera::standard_2d(width, height))
+        .with(position)
+        .with(transform)
+        .build();
+
+    *world.write_resource::<ActiveCamera>() = ActiveCamera {
+        entity: Some(camera),
+    };
 }
 
 fn load_character_entities(world: &mut World) {
@@ -95,20 +137,29 @@ fn load_character_entities(world: &mut World) {
     }
 }
 
-fn load_fonts(world: &mut World, progress: &mut ProgressCounter) {
-    let fonts = {
-        let loader = world.read_resource::<Loader>();
-        let store = world.read_resource::<AssetStorage<FontAsset>>();
+fn setup_character_positions(world: &mut World) {
+    type SystemData<'a> = (
+        WriteStorage<'a, Position>,
+        ReadStorage<'a, Glyph>,
+        Read<'a, EntitiesRes>,
+    );
 
-        Fonts {
-            main: loader.load("fonts/LeagueMono-Regular.ttf", TtfFormat, progress, &store),
+    world.exec(|(mut positions, glyphs, entities): SystemData| {
+        let missing = (&entities, &glyphs, !&positions)
+            .join()
+            .map(|(entity, _, _)| entity)
+            .collect::<Vec<_>>();
+
+        for entity in missing {
+            eprintln!("adding default position to entity {:?}", &entity);
+            positions
+                .insert(entity, Position { x: 0, y: 0 })
+                .expect("could not add `Position` component to entity");
         }
-    };
-
-    world.add_resource(fonts);
+    });
 }
 
-fn setup_character_ui_text_components<'a>(world: &mut World) {
+fn setup_character_ui_text_components(world: &mut World) {
     type SystemData<'a> = (
         WriteStorage<'a, UiText>,
         ReadStorage<'a, Glyph>,
@@ -134,6 +185,33 @@ fn setup_character_ui_text_components<'a>(world: &mut World) {
     });
 }
 
+fn setup_character_ui_transforms(world: &mut World) {
+    type SystemData<'a> = (
+        WriteStorage<'a, UiTransform>,
+        ReadStorage<'a, Glyph>,
+        Read<'a, EntitiesRes>,
+    );
+
+    world.exec(|(mut transforms, chars, entities): SystemData| {
+        for (entity, _) in (&entities, &chars).join() {
+            let transform = UiTransform::new(
+                "character".to_string(),
+                Anchor::BottomLeft,
+                Anchor::Middle,
+                0.0,
+                0.0,
+                PLAYER_SPRITE_LAYER,
+                TILE_WIDTH as f32,
+                TILE_HEIGHT as f32,
+            );
+
+            transforms
+                .insert(entity, transform)
+                .expect("could not insert character `UiTransform` component");
+        }
+    });
+}
+
 fn setup_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b> {
     let mut dispatcher_builder = DispatcherBuilder::new();
 
@@ -150,7 +228,6 @@ fn setup_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b> {
     dispatcher
 }
 
-
 fn setup_prefab_loaders(world: &mut World, progress: &mut ProgressCounter) {
     let handles = {
         let character = world.exec(|loader: PrefabLoader<'_, CharacterPrefab>| {
@@ -158,10 +235,17 @@ fn setup_prefab_loaders(world: &mut World, progress: &mut ProgressCounter) {
         });
 
         let player_character = world.exec(|loader: PrefabLoader<'_, CharacterPrefab>| {
-            loader.load("prefab/playercharacter.ron", RonFormat, progress.borrow_mut())
+            loader.load(
+                "prefab/playercharacter.ron",
+                RonFormat,
+                progress.borrow_mut(),
+            )
         });
 
-        PrefabLoaderHandles { character, player_character }
+        PrefabLoaderHandles {
+            character,
+            player_character,
+        }
     };
 
     world.add_resource(handles);

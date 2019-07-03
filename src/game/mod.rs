@@ -1,4 +1,5 @@
 mod area;
+mod assets;
 mod bundle;
 mod character;
 mod loading;

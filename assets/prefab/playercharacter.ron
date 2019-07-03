@@ -4,19 +4,9 @@ Prefab(
         PrefabEntity(
             data: CharacterPrefab(
                 glyph: Glyph('@'),
-                variant: PlayerCharacter(PlayerCharacter),
+                variant: PlayerCharacter,
+                position: Position(x: 20, y: 10),
             ),
         ),
-        // PrefabEntity(
-        //     data: PlayerCharacterPrefab(
-        //         glyph: Glyph('@'),
-        //         player_character: PlayerCharacter,
-        //     ),
-        // ),
-        // PrefabEntity(
-        //     data: PlayerCharacterPrefab(
-        //         glyph: Glyph('t'),
-        //     ),
-        // ),
     ],
 )

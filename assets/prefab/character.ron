@@ -1,0 +1,32 @@
+#![enable(implicit_some)]
+Prefab(
+    entities: [
+        PrefabEntity(
+            data: CharacterPrefab(
+                glyph: Glyph('a'),
+                position: Position(x: 5, y: 8),
+                variant: NonPlayerCharacter(
+                    name: "Alphonse",
+                ),
+            ),
+        ),
+        PrefabEntity(
+            data: CharacterPrefab(
+                glyph: Glyph('t'),
+                position: Position(x: 12, y: 5),
+                variant: NonPlayerCharacter(
+                    name: "Tara",
+                ),
+            ),
+        ),
+        PrefabEntity(
+            data: CharacterPrefab(
+                glyph: Glyph('m'),
+                position: Position(x: 15, y: 8),
+                variant: NonPlayerCharacter(
+                    name: "Malik",
+                ),
+            ),
+        ),
+    ],
+)

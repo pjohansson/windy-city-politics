@@ -1,46 +1,24 @@
 use amethyst::{
-    assets::{AssetStorage, Loader, PrefabLoader, ProgressCounter, RonFormat},
-    core::{transform::Transform, ArcThreadPool, SystemBundle},
-    ecs::{
-        prelude::{
-            Component, DenseVecStorage, Join, NullStorage, Read, ReadStorage, VecStorage,
-            WriteStorage,
-        },
-        world::EntitiesRes,
-    },
+    core::{ArcThreadPool, SystemBundle},
     prelude::*,
     renderer::{
         debug_drawing::DebugLinesComponent,
         palette::{Pixel, Srgba},
-        ActiveCamera, Camera, Sprite, SpriteRender, SpriteSheet, Texture, Transparent,
     },
     shred::{Dispatcher, DispatcherBuilder},
-    ui::{Anchor, FontHandle, UiText, UiTransform},
-    window::ScreenDimensions,
+    shrev::EventChannel,
+    ui::FontHandle,
 };
 
-use crate::{
-    render::get_screen_center_coordinates,
-    systems::movement::update_transforms::{
-        get_active_camera_position, get_screen_absolute_coordinates_for_entity_grid_position,
-    },
-    texture::create_texture,
-};
+use crate::systems::movement::update_transforms::UpdateTransformsEvent;
 
 use super::{
-    area::{get_world_coordinates, Area, CurrentArea, Position, TILE_HEIGHT, TILE_WIDTH},
-    bundle::{MovementSystemsBundle, PrefabLoaderBundle},
-    character::*,
+    area::{get_world_coordinates, Area, CurrentArea, TILE_HEIGHT, TILE_WIDTH},
+    bundle::MovementSystemsBundle,
 };
 
 const DEBUG_SPRITE_LAYER: f32 = -1.0;
 const BACKGROUND_SPRITE_LAYER: f32 = 0.0;
-const PLAYER_SPRITE_LAYER: f32 = 1.0;
-const CAMERA_POSITION_Z: f32 = 10.0;
-
-pub struct Fonts {
-    pub main: FontHandle,
-}
 
 #[derive(Default)]
 pub struct Regular<'a, 'b> {
@@ -54,8 +32,13 @@ impl<'a, 'b> SimpleState for Regular<'a, 'b> {
         self.dispatcher = Some(setup_game_system_dispatcher(world));
 
         init_area(40, 20, world);
-        init_camera(20, 10, world);
-        init_player_character(20, 10, world);
+
+        // All rendered entities should have correct `Positions` at this stage
+        // but once the camera is set up we need to trigger an update for
+        // corresponding `UiTransform`s before the first frame is rendered.
+        world
+            .write_resource::<EventChannel<UpdateTransformsEvent>>()
+            .single_write(UpdateTransformsEvent);
 
         // Debug grid
         draw_area_grid(world);
@@ -86,28 +69,6 @@ fn setup_game_system_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b>
     dispatcher
 }
 
-fn init_camera(x: u32, y: u32, world: &mut World) {
-    let (width, height) = {
-        let dimensions = world.read_resource::<ScreenDimensions>();
-        (dimensions.width(), dimensions.height())
-    };
-
-    let (xs, ys) = get_world_coordinates(x, y);
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(xs, ys, CAMERA_POSITION_Z);
-
-    let camera = world
-        .create_entity()
-        .with(Camera::standard_2d(width, height))
-        .with(Position { x, y })
-        .with(transform)
-        .build();
-
-    *world.write_resource::<ActiveCamera>() = ActiveCamera {
-        entity: Some(camera),
-    };
-}
-
 fn init_area(size_x: u32, size_y: u32, world: &mut World) {
     let area = world
         .create_entity()
@@ -117,56 +78,6 @@ fn init_area(size_x: u32, size_y: u32, world: &mut World) {
         .build();
 
     world.add_resource(CurrentArea(area));
-}
-
-fn init_player_character(x: u32, y: u32, world: &mut World) {
-    let transform = {
-        let screen_center =
-            get_screen_center_coordinates(&world.read_resource::<ScreenDimensions>());
-
-        let camera_position = get_active_camera_position(
-            &world.read_resource::<ActiveCamera>(),
-            &world.read_storage::<Position>(),
-        );
-
-        let (xs, ys) = get_screen_absolute_coordinates_for_entity_grid_position(
-            screen_center,
-            &camera_position,
-            &Position { x, y },
-        );
-
-        UiTransform::new(
-            "player_character".to_string(),
-            Anchor::BottomLeft,
-            Anchor::Middle,
-            xs,
-            ys,
-            PLAYER_SPRITE_LAYER,
-            TILE_WIDTH as f32,
-            TILE_HEIGHT as f32,
-        )
-    };
-
-    type SystemData<'a> = (
-        WriteStorage<'a, UiTransform>,
-        WriteStorage<'a, Position>,
-        ReadStorage<'a, Glyph>,
-        Read<'a, EntitiesRes>,
-    );
-
-    world.exec(
-        |(mut transforms, mut positions, chars, entities): SystemData| {
-            for (_, entity) in (&chars, &entities).join() {
-                transforms
-                    .insert(entity, transform.clone())
-                    .expect("could not insert character `Transform` component");
-
-                positions
-                    .insert(entity, Position { x, y })
-                    .expect("could not insert character `Position` component");
-            }
-        },
-    );
 }
 
 fn draw_area_grid(world: &mut World) {
