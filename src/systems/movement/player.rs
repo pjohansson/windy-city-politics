@@ -6,7 +6,7 @@ use amethyst::{
 
 use crate::game::{Area, CurrentArea, PlayerCharacter, Position};
 
-use super::{utils::update_position, Action, Move, PlayerActionEvent};
+use super::{update_transforms::UpdateTransformsEvent, utils::update_position, Move};
 
 /// Moves the `PlayerCharacter` inside the current active `Area`.
 pub struct PlayerMovementSystem;
@@ -14,7 +14,7 @@ pub struct PlayerMovementSystem;
 impl<'s> System<'s> for PlayerMovementSystem {
     type SystemData = (
         WriteStorage<'s, Position>,
-        Write<'s, EventChannel<PlayerActionEvent>>,
+        Write<'s, EventChannel<UpdateTransformsEvent>>,
         ReadStorage<'s, PlayerCharacter>,
         ReadExpect<'s, CurrentArea>,
         ReadStorage<'s, Area>,
@@ -52,7 +52,7 @@ impl<'s> System<'s> for PlayerMovementSystem {
                 update_position(position, &direction, &[0, 0, max_x, max_y]);
             }
 
-            events.single_write(PlayerActionEvent(Action::Move(direction)));
+            events.single_write(UpdateTransformsEvent);
         }
     }
 }
