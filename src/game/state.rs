@@ -13,9 +13,9 @@ use amethyst::{
 use crate::systems::movement::update_transforms::UpdateTransformsEvent;
 
 use super::{
-    area::{get_world_coordinates, Area, CurrentArea, TILE_HEIGHT, TILE_WIDTH},
+    area::{get_world_coordinates, Area, CurrentArea},
     bundle::MovementSystemsBundle,
-    consts::DEBUG_SPRITE_LAYER,
+    consts::{DEBUG_SPRITE_LAYER, TILE_HEIGHT, TILE_WIDTH},
 };
 
 #[derive(Default)]

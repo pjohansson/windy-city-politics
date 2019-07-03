@@ -10,7 +10,7 @@ use amethyst::{
 };
 
 use crate::{
-    game::{get_world_coordinates, Position, TILE_HEIGHT, TILE_WIDTH},
+    game::{get_world_coordinates, Position, consts::{TILE_HEIGHT, TILE_WIDTH}},
     render::get_screen_center_coordinates,
 };
 

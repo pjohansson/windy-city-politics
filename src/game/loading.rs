@@ -66,10 +66,10 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
 
         match self.progress.complete() {
             Completion::Complete => Trans::Switch(Box::new(Regular::default())),
+            Completion::Loading => Trans::None,
             Completion::Failed => {
                 panic!("could not read all required assets");
             }
-            Completion::Loading => Trans::None,
         }
     }
 }

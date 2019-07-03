@@ -10,9 +10,9 @@ use amethyst::{
 use serde::{Deserialize, Serialize};
 
 use super::{
-    area::{Position, TILE_HEIGHT, TILE_WIDTH},
+    area::Position,
     assets::Fonts,
-    consts::{GLYPH_FONT_SIZE, NPC_SPRITE_LAYER, PLAYER_SPRITE_LAYER},
+    consts::{GLYPH_FONT_SIZE, NPC_SPRITE_LAYER, PLAYER_SPRITE_LAYER, TILE_HEIGHT, TILE_WIDTH},
 };
 
 #[derive(Clone, Copy, Default, Debug, Deserialize, Serialize, PrefabData)]

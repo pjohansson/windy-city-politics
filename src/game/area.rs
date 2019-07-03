@@ -7,8 +7,7 @@ use amethyst::{
 
 use serde::{Deserialize, Serialize};
 
-pub const TILE_HEIGHT: u32 = 24;
-pub const TILE_WIDTH: u32 = 16;
+use super::consts::{TILE_HEIGHT, TILE_WIDTH};
 
 pub struct CurrentArea(pub Entity);
 
