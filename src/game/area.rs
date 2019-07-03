@@ -11,7 +11,9 @@ use super::consts::{TILE_HEIGHT, TILE_WIDTH};
 
 pub struct CurrentArea(pub Entity);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
+#[prefab(Component)]
+#[serde(deny_unknown_fields)]
 pub struct Area {
     pub dimensions: [u32; 2],
 }
@@ -35,6 +37,15 @@ impl Component for Position {
 /// Translate from area grid position to world pixel coordinates for rendering entities
 pub fn get_world_coordinates(x: u32, y: u32) -> (f32, f32) {
     ((x * TILE_WIDTH) as f32, (y * TILE_HEIGHT) as f32)
+}
+
+use super::character::CharacterPrefab;
+
+#[derive(Debug, Deserialize, Serialize, PrefabData)]
+#[serde(deny_unknown_fields)]
+pub enum AreaPrefab {
+    Area(Area),
+    Character(CharacterPrefab),
 }
 
 // pub struct Collision {

@@ -29,8 +29,6 @@ impl<'a, 'b> SimpleState for Regular<'a, 'b> {
 
         self.dispatcher = Some(setup_game_system_dispatcher(world));
 
-        init_area(40, 20, world);
-
         // All rendered entities should have correct `Position`s at this stage
         // but once the camera is set up we need to trigger an update for
         // their corresponding transforms before the first frame is rendered.
@@ -79,17 +77,6 @@ fn setup_game_system_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b>
     dispatcher.setup(&mut world.res);
 
     dispatcher
-}
-
-fn init_area(size_x: u32, size_y: u32, world: &mut World) {
-    let area = world
-        .create_entity()
-        .with(Area {
-            dimensions: [size_x, size_y],
-        })
-        .build();
-
-    world.add_resource(CurrentArea(area));
 }
 
 fn draw_area_grid(world: &mut World) {

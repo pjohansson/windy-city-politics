@@ -11,7 +11,7 @@ use amethyst::{
 use std::borrow::BorrowMut;
 
 use super::{
-    area::Position,
+    area::{AreaPrefab, CurrentArea, Position},
     assets::load_fonts,
     bundle::PrefabLoaderBundle,
     character::{CharacterPrefab, PlayerCharacter},
@@ -20,6 +20,7 @@ use super::{
 };
 
 pub struct PrefabLoaderHandles {
+    pub area: Handle<Prefab<AreaPrefab>>,
     pub character: Handle<Prefab<CharacterPrefab>>,
     pub player_character: Handle<Prefab<CharacterPrefab>>,
 }
@@ -51,7 +52,9 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
         load_fonts(world, progress);
 
         setup_prefab_loaders(world, progress);
-        load_character_entities(world);
+
+        load_area_entities(world);
+        load_player_character_entity(world);
     }
 
     fn on_stop(&mut self, data: StateData<GameData>) {
@@ -127,28 +130,29 @@ fn init_camera(world: &mut World) {
     };
 }
 
-fn load_character_entities(world: &mut World) {
-    let prefab_handles = {
-        let character = world
-            .read_resource::<PrefabLoaderHandles>()
-            .character
-            .clone();
+fn load_area_entities(world: &mut World) {
+    let area_handle = world.read_resource::<PrefabLoaderHandles>().area.clone();
 
-        let player_character = world
-            .read_resource::<PrefabLoaderHandles>()
-            .player_character
-            .clone();
+    let entity = world.create_entity().with(area_handle).build();
 
-        vec![character, player_character]
-    };
+    world.add_resource(CurrentArea(entity));
+}
 
-    for handle in prefab_handles {
-        world.create_entity().with(handle).build();
-    }
+fn load_player_character_entity(world: &mut World) {
+    let handle = world
+        .read_resource::<PrefabLoaderHandles>()
+        .player_character
+        .clone();
+
+    world.create_entity().with(handle).build();
 }
 
 fn setup_prefab_loaders(world: &mut World, progress: &mut ProgressCounter) {
     let handles = {
+        let area = world.exec(|loader: PrefabLoader<'_, AreaPrefab>| {
+            loader.load("prefab/area.ron", RonFormat, progress.borrow_mut())
+        });
+
         let character = world.exec(|loader: PrefabLoader<'_, CharacterPrefab>| {
             loader.load("prefab/character.ron", RonFormat, progress.borrow_mut())
         });
@@ -162,6 +166,7 @@ fn setup_prefab_loaders(world: &mut World, progress: &mut ProgressCounter) {
         });
 
         PrefabLoaderHandles {
+            area,
             character,
             player_character,
         }
