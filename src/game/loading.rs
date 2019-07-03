@@ -1,22 +1,21 @@
 use amethyst::{
     assets::{Completion, Handle, Prefab, PrefabLoader, ProgressCounter, RonFormat},
     core::{ArcThreadPool, SystemBundle, Transform},
-    ecs::{world::EntitiesRes, Join, Read, ReadExpect, ReadStorage, WriteStorage},
-    prelude::*,
+    ecs::Join,
+    prelude::{Builder, GameData, SimpleState, SimpleTrans, StateData, Trans, World},
     renderer::{ActiveCamera, Camera},
     shred::{Dispatcher, DispatcherBuilder},
-    ui::{Anchor, UiText, UiTransform},
     window::ScreenDimensions,
 };
 
 use std::borrow::BorrowMut;
 
 use super::{
-    area::{Position, TILE_HEIGHT, TILE_WIDTH},
-    assets::{load_fonts, Fonts},
+    area::Position,
+    assets::load_fonts,
     bundle::PrefabLoaderBundle,
-    character::{CharacterPrefab, Glyph, PlayerCharacter},
-    consts::{CAMERA_POSITION_Z, PLAYER_SPRITE_LAYER},
+    character::{CharacterPrefab, PlayerCharacter},
+    consts::CAMERA_POSITION_Z,
     state::Regular,
 };
 
@@ -57,11 +56,6 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
 
     fn on_stop(&mut self, data: StateData<GameData>) {
         let world = data.world;
-
-        setup_character_ui_text_components(world);
-        setup_character_ui_transforms(world);
-        setup_character_positions(world);
-
         init_camera(world);
     }
 
@@ -79,6 +73,26 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
         }
     }
 }
+
+fn setup_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b> {
+    let mut dispatcher_builder = DispatcherBuilder::new();
+
+    PrefabLoaderBundle
+        .build(&mut dispatcher_builder)
+        .expect("failed to register `PrefabLoaderBundle`");
+
+    let mut dispatcher = dispatcher_builder
+        .with_pool(world.read_resource::<ArcThreadPool>().clone())
+        .build();
+
+    dispatcher.setup(&mut world.res);
+
+    dispatcher
+}
+
+/****************************************
+ * Entity and component setup functions *
+ ****************************************/
 
 fn init_camera(world: &mut World) {
     let (width, height) = {
@@ -131,96 +145,6 @@ fn load_character_entities(world: &mut World) {
     for handle in prefab_handles {
         world.create_entity().with(handle).build();
     }
-}
-
-fn setup_character_positions(world: &mut World) {
-    type SystemData<'a> = (
-        WriteStorage<'a, Position>,
-        ReadStorage<'a, Glyph>,
-        Read<'a, EntitiesRes>,
-    );
-
-    world.exec(|(mut positions, glyphs, entities): SystemData| {
-        let missing = (&entities, &glyphs, !&positions)
-            .join()
-            .map(|(entity, _, _)| entity)
-            .collect::<Vec<_>>();
-
-        for entity in missing {
-            positions
-                .insert(entity, Position { x: 0, y: 0 })
-                .expect("could not add `Position` component to entity");
-        }
-    });
-}
-
-fn setup_character_ui_text_components(world: &mut World) {
-    type SystemData<'a> = (
-        WriteStorage<'a, UiText>,
-        ReadStorage<'a, Glyph>,
-        Read<'a, EntitiesRes>,
-        ReadExpect<'a, Fonts>,
-    );
-
-    world.exec(|(mut ui_texts, chars, entities, fonts): SystemData| {
-        let font = &fonts.main;
-
-        for (Glyph(c), entity) in (&chars, &entities).join() {
-            let text = UiText::new(
-                font.clone(),
-                c.to_string(),
-                [1.0, 1.0, 1.0, 1.0],
-                TILE_HEIGHT as f32,
-            );
-
-            ui_texts
-                .insert(entity, text)
-                .expect("could not insert character `UiText` component");
-        }
-    });
-}
-
-fn setup_character_ui_transforms(world: &mut World) {
-    type SystemData<'a> = (
-        WriteStorage<'a, UiTransform>,
-        ReadStorage<'a, Glyph>,
-        Read<'a, EntitiesRes>,
-    );
-
-    world.exec(|(mut transforms, chars, entities): SystemData| {
-        for (entity, _) in (&entities, &chars).join() {
-            let transform = UiTransform::new(
-                "character".to_string(),
-                Anchor::BottomLeft,
-                Anchor::Middle,
-                0.0,
-                0.0,
-                PLAYER_SPRITE_LAYER,
-                TILE_WIDTH as f32,
-                TILE_HEIGHT as f32,
-            );
-
-            transforms
-                .insert(entity, transform)
-                .expect("could not insert character `UiTransform` component");
-        }
-    });
-}
-
-fn setup_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b> {
-    let mut dispatcher_builder = DispatcherBuilder::new();
-
-    PrefabLoaderBundle
-        .build(&mut dispatcher_builder)
-        .expect("failed to register PrefabLoaderBundle");
-
-    let mut dispatcher = dispatcher_builder
-        .with_pool(world.read_resource::<ArcThreadPool>().clone())
-        .build();
-
-    dispatcher.setup(&mut world.res);
-
-    dispatcher
 }
 
 fn setup_prefab_loaders(world: &mut World, progress: &mut ProgressCounter) {

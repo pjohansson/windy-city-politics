@@ -1,9 +1,7 @@
 use amethyst::{
     core::{ArcThreadPool, SystemBundle},
     input::{is_key_down, VirtualKeyCode},
-    prelude::{
-        Builder, DataInit, GameData, SimpleState, SimpleTrans, StateData, StateEvent, Trans, World,
-    },
+    prelude::{Builder, GameData, SimpleState, SimpleTrans, StateData, StateEvent, Trans, World},
     renderer::{
         debug_drawing::DebugLinesComponent,
         palette::{Pixel, Srgba},
@@ -72,7 +70,7 @@ fn setup_game_system_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b>
 
     MovementSystemsBundle
         .build(&mut dispatcher_builder)
-        .expect("failed to register MoveSystemsBundle");
+        .expect("failed to register `MoveSystemsBundle`");
 
     let mut dispatcher = dispatcher_builder
         .with_pool(world.read_resource::<ArcThreadPool>().clone())
@@ -122,4 +120,3 @@ fn draw_area_grid(world: &mut World) {
 
     world.create_entity().with(debug_lines).build();
 }
-

@@ -3,7 +3,7 @@ Prefab(
     entities: [
         PrefabEntity(
             data: CharacterPrefab(
-                glyph: Glyph('a'),
+                glyph: 'a',
                 position: Position(x: 5, y: 8),
                 variant: NonPlayerCharacter(
                     name: "Alphonse",
@@ -12,7 +12,7 @@ Prefab(
         ),
         PrefabEntity(
             data: CharacterPrefab(
-                glyph: Glyph('t'),
+                glyph: 't',
                 position: Position(x: 12, y: 5),
                 variant: NonPlayerCharacter(
                     name: "Tara",
@@ -21,7 +21,7 @@ Prefab(
         ),
         PrefabEntity(
             data: CharacterPrefab(
-                glyph: Glyph('m'),
+                glyph: 'm',
                 position: Position(x: 15, y: 8),
                 variant: NonPlayerCharacter(
                     name: "Malik",

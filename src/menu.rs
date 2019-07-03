@@ -6,7 +6,7 @@ use amethyst::{
     ui::{UiCreator, UiTransform},
 };
 
-use crate::game::*;
+use crate::game::Loading;
 
 #[derive(Default)]
 pub struct MainMenu {
@@ -14,11 +14,7 @@ pub struct MainMenu {
 }
 
 impl SimpleState for MainMenu {
-    fn handle_event(
-        &mut self,
-        _data: StateData<'_, GameData<'_, '_>>,
-        event: StateEvent,
-    ) -> SimpleTrans {
+    fn handle_event(&mut self, _data: StateData<GameData>, event: StateEvent) -> SimpleTrans {
         if let StateEvent::Window(event) = event {
             if is_key_down(&event, VirtualKeyCode::P) {
                 return Trans::Push(Box::new(Loading::default()));
@@ -33,7 +29,7 @@ impl SimpleState for MainMenu {
         Trans::None
     }
 
-    fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+    fn on_start(&mut self, data: StateData<GameData>) {
         let world = data.world;
 
         world.exec(|mut creator: UiCreator<'_>| {
@@ -41,7 +37,7 @@ impl SimpleState for MainMenu {
         });
     }
 
-    fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+    fn on_pause(&mut self, data: StateData<GameData>) {
         if let Some(ui) = self.ui_entity {
             let world = data.world;
 
@@ -58,7 +54,7 @@ fn hide_entity_and_children(current_entity: Entity, world: &mut World) {
     let mut hidden_store = world.write_storage::<Hidden>();
     hidden_store
         .insert(current_entity, Hidden)
-        .expect("could not access Hidden entity storage");
+        .expect("could not access `Hidden` component storage");
 }
 
 fn find_children(current_entity: Entity, world: &World) -> Vec<Entity> {

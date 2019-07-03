@@ -3,7 +3,7 @@ Prefab(
     entities: [
         PrefabEntity(
             data: CharacterPrefab(
-                glyph: Glyph('@'),
+                glyph: '@',
                 variant: PlayerCharacter,
                 position: Position(x: 20, y: 10),
             ),
