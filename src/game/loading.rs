@@ -1,7 +1,5 @@
 use amethyst::{
-    assets::{
-        Completion, Handle, Prefab, PrefabLoader, ProgressCounter, RonFormat,
-    },
+    assets::{Completion, Handle, Prefab, PrefabLoader, ProgressCounter, RonFormat},
     core::{ArcThreadPool, SystemBundle, Transform},
     ecs::{world::EntitiesRes, Join, Read, ReadExpect, ReadStorage, WriteStorage},
     prelude::*,
@@ -17,12 +15,10 @@ use super::{
     area::{Position, TILE_HEIGHT, TILE_WIDTH},
     assets::{load_fonts, Fonts},
     bundle::PrefabLoaderBundle,
-    character::*,
+    character::{CharacterPrefab, Glyph, PlayerCharacter},
+    consts::{CAMERA_POSITION_Z, PLAYER_SPRITE_LAYER},
     state::Regular,
 };
-
-const PLAYER_SPRITE_LAYER: f32 = 1.0;
-const CAMERA_POSITION_Z: f32 = 10.0;
 
 pub struct PrefabLoaderHandles {
     pub character: Handle<Prefab<CharacterPrefab>>,
@@ -151,7 +147,6 @@ fn setup_character_positions(world: &mut World) {
             .collect::<Vec<_>>();
 
         for entity in missing {
-            eprintln!("adding default position to entity {:?}", &entity);
             positions
                 .insert(entity, Position { x: 0, y: 0 })
                 .expect("could not add `Position` component to entity");

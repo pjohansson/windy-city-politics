@@ -1,6 +1,6 @@
 mod bundle;
 mod game;
-mod mainmenu;
+mod menu;
 mod render;
 mod systems;
 mod texture;
@@ -16,7 +16,7 @@ use amethyst::{
 };
 
 use bundle::SpriteBundle;
-use mainmenu::MainMenu;
+use menu::MainMenu;
 use render::ExampleGraph;
 
 fn main() -> amethyst::Result<()> {

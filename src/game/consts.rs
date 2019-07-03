@@ -1,0 +1,4 @@
+pub const DEBUG_SPRITE_LAYER: f32 = -1.0;
+pub const BACKGROUND_SPRITE_LAYER: f32 = 0.0;
+pub const PLAYER_SPRITE_LAYER: f32 = 1.0;
+pub const CAMERA_POSITION_Z: f32 = 10.0;

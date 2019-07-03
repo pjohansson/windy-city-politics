@@ -1,13 +1,15 @@
 use amethyst::{
     core::{ArcThreadPool, SystemBundle},
-    prelude::*,
+    input::{is_key_down, VirtualKeyCode},
+    prelude::{
+        Builder, DataInit, GameData, SimpleState, SimpleTrans, StateData, StateEvent, Trans, World,
+    },
     renderer::{
         debug_drawing::DebugLinesComponent,
         palette::{Pixel, Srgba},
     },
     shred::{Dispatcher, DispatcherBuilder},
     shrev::EventChannel,
-    ui::FontHandle,
 };
 
 use crate::systems::movement::update_transforms::UpdateTransformsEvent;
@@ -15,10 +17,8 @@ use crate::systems::movement::update_transforms::UpdateTransformsEvent;
 use super::{
     area::{get_world_coordinates, Area, CurrentArea, TILE_HEIGHT, TILE_WIDTH},
     bundle::MovementSystemsBundle,
+    consts::DEBUG_SPRITE_LAYER,
 };
-
-const DEBUG_SPRITE_LAYER: f32 = -1.0;
-const BACKGROUND_SPRITE_LAYER: f32 = 0.0;
 
 #[derive(Default)]
 pub struct Regular<'a, 'b> {
@@ -33,15 +33,29 @@ impl<'a, 'b> SimpleState for Regular<'a, 'b> {
 
         init_area(40, 20, world);
 
-        // All rendered entities should have correct `Positions` at this stage
+        // All rendered entities should have correct `Position`s at this stage
         // but once the camera is set up we need to trigger an update for
-        // corresponding `UiTransform`s before the first frame is rendered.
+        // their corresponding transforms before the first frame is rendered.
         world
             .write_resource::<EventChannel<UpdateTransformsEvent>>()
             .single_write(UpdateTransformsEvent);
 
         // Debug grid
         draw_area_grid(world);
+    }
+
+    fn handle_event(
+        &mut self,
+        _data: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+        if let StateEvent::Window(event) = event {
+            if is_key_down(&event, VirtualKeyCode::Escape) {
+                return Trans::Quit;
+            }
+        }
+
+        Trans::None
     }
 
     fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {

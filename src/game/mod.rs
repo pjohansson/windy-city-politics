@@ -2,6 +2,7 @@ mod area;
 mod assets;
 mod bundle;
 mod character;
+mod consts;
 mod loading;
 mod state;
 

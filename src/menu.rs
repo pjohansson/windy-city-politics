@@ -1,10 +1,9 @@
 use amethyst::{
-    assets::{AssetStorage, Loader},
     core::{transform::Parent, Hidden},
     ecs::{world::EntitiesRes, Entity, Join},
     input::{is_key_down, VirtualKeyCode},
     prelude::*,
-    ui::{FontAsset, FontHandle, TtfFormat, UiCreator, UiTransform},
+    ui::{UiCreator, UiTransform},
 };
 
 use crate::game::*;
