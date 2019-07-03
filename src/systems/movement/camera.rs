@@ -8,10 +8,7 @@ use amethyst::{
 
 use crate::game::{Area, CurrentArea, PlayerCharacter, Position};
 
-use super::{
-    player::clamp_position,
-    update_transforms::UpdateTransformsEvent,
-};
+use super::{player::clamp_position, update_transforms::UpdateTransformsEvent};
 
 // Camera position buffers to halt movement this many tiles before the current area edge.
 const CAMERA_AREA_EDGE_BUFFER_WIDTH_X: u32 = 17;

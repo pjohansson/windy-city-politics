@@ -57,7 +57,7 @@ impl<'s> System<'s> for PlayerMovementSystem {
     }
 }
 
-/// Update the input position by moving it along the input direction. 
+/// Update the input position by moving it along the input direction.
 fn move_position(
     position: &mut Position,
     direction: &Move,
