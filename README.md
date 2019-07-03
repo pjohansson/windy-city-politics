@@ -6,7 +6,7 @@ titled *5 Star Creatives 5 Star Jam Times*.
 
 ## Meta
 
-* Version:  0.1.2
+* Version:  0.1.3
 * Web site: https://toppform.itch.io/windy-city-politics
 * Jam site: https://itch.io/jam/waypoint-2019
 
