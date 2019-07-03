@@ -9,6 +9,8 @@ use amethyst::{
     ui::{FontAsset, TtfFormat, UiText},
 };
 
+use std::borrow::BorrowMut;
+
 use super::{
     area::TILE_HEIGHT,
     bundle::PrefabLoaderBundle,
@@ -17,7 +19,8 @@ use super::{
 };
 
 pub struct PrefabLoaderHandles {
-    pub player_character: Handle<Prefab<PlayerCharacterPrefab>>,
+    pub character: Handle<Prefab<CharacterPrefab>>,
+    pub player_character: Handle<Prefab<CharacterPrefab>>,
 }
 
 /// Load all required assets and prefabs, then set up all components
@@ -64,21 +67,32 @@ impl<'a, 'b> SimpleState for Loading<'a, 'b> {
             Completion::Complete => Trans::Switch(Box::new(Regular::default())),
             Completion::Failed => {
                 panic!("could not read all required assets");
-            }
-            Completion::Loading => Trans::None,
+            },
+            Completion::Loading => {
+                Trans::None
+            },
         }
     }
 }
 
 fn load_character_entities(world: &mut World) {
-    let handle = {
-        world
+    let prefab_handles = {
+        let character = world
+            .read_resource::<PrefabLoaderHandles>()
+            .character
+            .clone();
+
+        let player_character = world
             .read_resource::<PrefabLoaderHandles>()
             .player_character
-            .clone()
+            .clone();
+
+        vec![character, player_character]
     };
 
-    world.create_entity().with(handle).build();
+    for handle in prefab_handles {
+        world.create_entity().with(handle).build();
+    }
 }
 
 fn load_fonts(world: &mut World, progress: &mut ProgressCounter) {
@@ -97,7 +111,7 @@ fn load_fonts(world: &mut World, progress: &mut ProgressCounter) {
 fn setup_character_ui_text_components<'a>(world: &mut World) {
     type SystemData<'a> = (
         WriteStorage<'a, UiText>,
-        ReadStorage<'a, CharacterChar>,
+        ReadStorage<'a, Glyph>,
         Read<'a, EntitiesRes>,
         ReadExpect<'a, Fonts>,
     );
@@ -105,7 +119,7 @@ fn setup_character_ui_text_components<'a>(world: &mut World) {
     world.exec(|(mut ui_texts, chars, entities, fonts): SystemData| {
         let font = &fonts.main;
 
-        for (CharacterChar(c), entity) in (&chars, &entities).join() {
+        for (Glyph(c), entity) in (&chars, &entities).join() {
             let text = UiText::new(
                 font.clone(),
                 c.to_string(),
@@ -136,13 +150,18 @@ fn setup_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b> {
     dispatcher
 }
 
+
 fn setup_prefab_loaders(world: &mut World, progress: &mut ProgressCounter) {
     let handles = {
-        let player_character = world.exec(|loader: PrefabLoader<'_, PlayerCharacterPrefab>| {
-            loader.load("prefab/playercharacter.ron", RonFormat, progress)
+        let character = world.exec(|loader: PrefabLoader<'_, CharacterPrefab>| {
+            loader.load("prefab/character.ron", RonFormat, progress.borrow_mut())
         });
 
-        PrefabLoaderHandles { player_character }
+        let player_character = world.exec(|loader: PrefabLoader<'_, CharacterPrefab>| {
+            loader.load("prefab/playercharacter.ron", RonFormat, progress.borrow_mut())
+        });
+
+        PrefabLoaderHandles { character, player_character }
     };
 
     world.add_resource(handles);

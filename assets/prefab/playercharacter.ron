@@ -2,10 +2,21 @@
 Prefab(
     entities: [
         PrefabEntity(
-            data: PlayerCharacterPrefab(
-                character: CharacterChar('@'),
-                player_character: PlayerCharacter,
+            data: CharacterPrefab(
+                glyph: Glyph('@'),
+                variant: PlayerCharacter(PlayerCharacter),
             ),
         ),
+        // PrefabEntity(
+        //     data: PlayerCharacterPrefab(
+        //         glyph: Glyph('@'),
+        //         player_character: PlayerCharacter,
+        //     ),
+        // ),
+        // PrefabEntity(
+        //     data: PlayerCharacterPrefab(
+        //         glyph: Glyph('t'),
+        //     ),
+        // ),
     ],
 )

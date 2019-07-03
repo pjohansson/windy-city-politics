@@ -19,22 +19,24 @@ impl Component for PlayerCharacter {
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, PrefabData)]
 #[prefab(Component)]
 #[serde(deny_unknown_fields)]
-pub struct CharacterChar(pub char);
+pub struct Glyph(pub char);
 
-impl Component for CharacterChar {
+impl Component for Glyph {
     type Storage = DenseVecStorage<Self>;
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
 #[serde(deny_unknown_fields)]
-pub struct CharacterPrefab {
-    name: Named,
-    character: CharacterChar,
+pub enum CharacterVariant {
+    PlayerCharacter(PlayerCharacter),
+    NonPlayerCharacter {
+        name: Named,
+    },
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
 #[serde(deny_unknown_fields)]
-pub struct PlayerCharacterPrefab {
-    character: CharacterChar,
-    player_character: PlayerCharacter,
+pub struct CharacterPrefab {
+    glyph: Glyph,
+    variant: CharacterVariant,
 }

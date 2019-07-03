@@ -150,7 +150,7 @@ fn init_player_character(x: u32, y: u32, world: &mut World) {
     type SystemData<'a> = (
         WriteStorage<'a, UiTransform>,
         WriteStorage<'a, Position>,
-        ReadStorage<'a, CharacterChar>,
+        ReadStorage<'a, Glyph>,
         Read<'a, EntitiesRes>,
     );
 
@@ -197,3 +197,4 @@ fn draw_area_grid(world: &mut World) {
 
     world.create_entity().with(debug_lines).build();
 }
+
