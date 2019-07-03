@@ -6,11 +6,11 @@ use amethyst::{
     shrev::{EventChannel, ReaderId},
 };
 
-use crate::game::{Area, CurrentArea, Position};
+use crate::game::{Area, CurrentArea, PlayerCharacter, Position};
 
 use super::{
-    utils::{clamp_position, update_position},
-    Action, PlayerActionEvent,
+    player::clamp_position,
+    update_transforms::UpdateTransformsEvent,
 };
 
 // Camera position buffers to halt movement this many tiles before the current area edge.
@@ -19,34 +19,40 @@ const CAMERA_AREA_EDGE_BUFFER_WIDTH_Y: u32 = 7;
 
 /// Moves the `Camera` along with the player character.
 pub struct CameraMovementSystem {
-    pub reader: Option<ReaderId<PlayerActionEvent>>,
+    pub reader: Option<ReaderId<UpdateTransformsEvent>>,
 }
 
 impl<'s> System<'s> for CameraMovementSystem {
     type SystemData = (
         WriteStorage<'s, Position>,
         ReadStorage<'s, Camera>,
+        ReadStorage<'s, PlayerCharacter>,
         ReadExpect<'s, CurrentArea>,
         ReadStorage<'s, Area>,
-        Read<'s, EventChannel<PlayerActionEvent>>,
+        Read<'s, EventChannel<UpdateTransformsEvent>>,
     );
 
     fn run(
         &mut self,
-        (mut positions, cameras, current_area, areas, event_channel): Self::SystemData,
+        (mut positions, cameras, characters, current_area, areas, event_channel): Self::SystemData,
     ) {
-        for action in event_channel.read(self.reader.as_mut().unwrap()) {
-            if let PlayerActionEvent(Action::Move(direction)) = action {
-                let area_size = areas.get(current_area.0).unwrap().dimensions;
-                let [min_x, min_y, max_x, max_y] = get_valid_camera_positions(
-                    &area_size,
-                    CAMERA_AREA_EDGE_BUFFER_WIDTH_X,
-                    CAMERA_AREA_EDGE_BUFFER_WIDTH_Y,
-                );
+        for _ in event_channel.read(self.reader.as_mut().unwrap()) {
+            let target = (&positions, &characters)
+                .join()
+                .map(|(position, _)| position)
+                .next()
+                .cloned()
+                .unwrap_or(Position { x: 0, y: 0 });
 
-                for (position, _) in (&mut positions, &cameras).join() {
-                    update_position(position, direction, &[min_x, min_y, max_x, max_y]);
-                }
+            let area_size = areas.get(current_area.0).unwrap().dimensions;
+            let [min_x, min_y, max_x, max_y] = get_valid_camera_positions(
+                &area_size,
+                CAMERA_AREA_EDGE_BUFFER_WIDTH_X,
+                CAMERA_AREA_EDGE_BUFFER_WIDTH_Y,
+            );
+
+            for (position, _) in (&mut positions, &cameras).join() {
+                update_position(position, &target, &[min_x, min_y, max_x, max_y]);
             }
         }
     }
@@ -54,7 +60,7 @@ impl<'s> System<'s> for CameraMovementSystem {
     fn setup(&mut self, res: &mut Resources) {
         Self::SystemData::setup(res);
         self.reader = Some(
-            res.fetch_mut::<EventChannel<PlayerActionEvent>>()
+            res.fetch_mut::<EventChannel<UpdateTransformsEvent>>()
                 .register_reader(),
         );
     }
@@ -83,6 +89,16 @@ fn get_valid_camera_positions(
             *size_y,
         ),
     ]
+}
+
+/// Update the input position to the target, clamping to given area.
+fn update_position(
+    position: &mut Position,
+    target: &Position,
+    [min_x, min_y, max_x, max_y]: &[u32; 4],
+) {
+    position.x = clamp_position(target.x as i32, *min_x, *max_x);
+    position.y = clamp_position(target.y as i32, *min_y, *max_y);
 }
 
 #[cfg(test)]
