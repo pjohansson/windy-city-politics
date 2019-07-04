@@ -11,18 +11,19 @@ use amethyst::{
     prelude::{Application, GameDataBuilder},
     renderer::{types::DefaultBackend, RenderingSystem},
     ui::UiBundle,
-    utils::application_root_dir,
     window::WindowBundle,
 };
+
+use std::env::current_dir;
 
 use bundle::SpriteBundle;
 use menu::MainMenu;
 use render::ExampleGraph;
 
-fn main() -> amethyst::Result<()> {
+fn main() -> Result<(), amethyst::Error> {
     amethyst::start_logger(Default::default());
 
-    let app_root = application_root_dir()?;
+    let app_root = current_dir().map_err(|err| amethyst::Error::new(err))?;
 
     let binding_path = app_root.join("resources").join("bindings_config.ron");
     let display_config_path = app_root.join("resources").join("display_config.ron");
