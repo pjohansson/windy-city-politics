@@ -1,7 +1,6 @@
 use amethyst::{
     assets::PrefabData,
     core::Named,
-    derive::PrefabData,
     ecs::prelude::{Component, DenseVecStorage, Entity, NullStorage, ReadExpect, WriteStorage},
     ui::{Anchor, FontHandle, UiText, UiTransform},
     Error,
@@ -15,8 +14,7 @@ use super::{
     consts::{GLYPH_FONT_SIZE, NPC_SPRITE_LAYER, PLAYER_SPRITE_LAYER, TILE_HEIGHT, TILE_WIDTH},
 };
 
-#[derive(Clone, Copy, Default, Debug, Deserialize, Serialize, PrefabData)]
-#[prefab(Component)]
+#[derive(Clone, Copy, Default, Debug, Deserialize, Serialize)]
 /// Tag for the player character entity.
 pub struct PlayerCharacter;
 

@@ -103,7 +103,7 @@ impl<'s> System<'s> for UpdateTransformsSystem {
     }
 }
 
-pub fn get_active_camera_position(
+fn get_active_camera_position(
     camera: &ActiveCamera,
     positions: &ReadStorage<Position>,
 ) -> Position {
@@ -114,7 +114,7 @@ pub fn get_active_camera_position(
         .unwrap_or(Position { x: 0, y: 0 })
 }
 
-pub fn get_screen_absolute_coordinates_for_entity_grid_position(
+fn get_screen_absolute_coordinates_for_entity_grid_position(
     screen_center: (f32, f32),
     camera: &Position,
     entity: &Position,

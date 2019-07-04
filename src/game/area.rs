@@ -1,10 +1,7 @@
 use amethyst::{
-    assets::{AssetStorage, Loader, Prefab, PrefabData, PrefabLoader, ProgressCounter, RonFormat},
+    assets::PrefabData,
     derive::PrefabData,
-    ecs::prelude::{
-        Component, DenseVecStorage, Entity, Read, ReadExpect, ReadStorage, VecStorage, Write,
-        WriteExpect, WriteStorage,
-    },
+    ecs::prelude::{Component, DenseVecStorage, Entity, VecStorage, WriteStorage},
     Error,
 };
 
