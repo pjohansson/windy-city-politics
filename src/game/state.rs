@@ -13,7 +13,7 @@ use amethyst::{
 use crate::systems::movement::update_transforms::UpdateTransformsEvent;
 
 use super::{
-    area::{get_world_coordinates, Area, CurrentArea},
+    area::{get_world_coordinates, Area, ActiveArea},
     bundle::MovementSystemsBundle,
     consts::{DEBUG_SPRITE_LAYER, TILE_HEIGHT, TILE_WIDTH},
 };
@@ -81,7 +81,7 @@ fn setup_game_system_dispatcher<'a, 'b>(world: &mut World) -> Dispatcher<'a, 'b>
 
 fn draw_area_grid(world: &mut World) {
     let [nx, ny] = {
-        let CurrentArea(entity) = *world.read_resource::<CurrentArea>();
+        let ActiveArea(entity) = *world.read_resource::<ActiveArea>();
         world.read_storage::<Area>().get(entity).unwrap().dimensions
     };
 

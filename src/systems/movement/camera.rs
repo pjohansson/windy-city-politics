@@ -6,7 +6,7 @@ use amethyst::{
     shrev::{EventChannel, ReaderId},
 };
 
-use crate::game::{Area, CurrentArea, PlayerCharacter, Position};
+use crate::game::{Area, ActiveArea, PlayerCharacter, Position};
 
 use super::{player::clamp_position, update_transforms::UpdateTransformsEvent};
 
@@ -24,7 +24,7 @@ impl<'s> System<'s> for CameraMovementSystem {
         WriteStorage<'s, Position>,
         ReadStorage<'s, Camera>,
         ReadStorage<'s, PlayerCharacter>,
-        ReadExpect<'s, CurrentArea>,
+        ReadExpect<'s, ActiveArea>,
         ReadStorage<'s, Area>,
         Read<'s, EventChannel<UpdateTransformsEvent>>,
     );

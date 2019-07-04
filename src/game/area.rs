@@ -9,7 +9,8 @@ use serde::{Deserialize, Serialize};
 
 use super::consts::{TILE_HEIGHT, TILE_WIDTH};
 
-pub struct CurrentArea(pub Entity);
+/// Use as a resource to keep track of the currently active area entity.
+pub struct ActiveArea(pub Entity);
 
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
 #[prefab(Component)]

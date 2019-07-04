@@ -11,7 +11,7 @@ use amethyst::{
 use std::borrow::BorrowMut;
 
 use super::{
-    area::{Area, CurrentArea, Position},
+    area::{Area, ActiveArea, Position},
     assets::load_fonts,
     bundle::PrefabLoaderBundle,
     character::{CharacterPrefab, PlayerCharacter},
@@ -140,7 +140,7 @@ fn load_area_entities(world: &mut World) {
     let area_handle = world.read_resource::<PrefabLoaderHandles>().area.clone();
     let area_entity = world.create_entity().with(area_handle).build();
 
-    world.add_resource(CurrentArea(area_entity));
+    world.add_resource(ActiveArea(area_entity));
 }
 
 fn load_player_character_entity(world: &mut World) {

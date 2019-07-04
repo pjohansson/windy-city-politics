@@ -6,7 +6,7 @@ pub mod consts;
 mod loading;
 mod state;
 
-pub use area::{get_world_coordinates, Area, CurrentArea, Position};
+pub use area::{get_world_coordinates, Area, ActiveArea, Position};
 pub use character::PlayerCharacter;
 pub use loading::Loading;
 pub use state::Regular;

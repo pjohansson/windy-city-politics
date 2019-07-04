@@ -4,7 +4,7 @@ use amethyst::{
     shrev::EventChannel,
 };
 
-use crate::game::{Area, CurrentArea, PlayerCharacter, Position};
+use crate::game::{Area, ActiveArea, PlayerCharacter, Position};
 
 use super::{update_transforms::UpdateTransformsEvent, Move};
 
@@ -16,7 +16,7 @@ impl<'s> System<'s> for PlayerMovementSystem {
         WriteStorage<'s, Position>,
         Write<'s, EventChannel<UpdateTransformsEvent>>,
         ReadStorage<'s, PlayerCharacter>,
-        ReadExpect<'s, CurrentArea>,
+        ReadExpect<'s, ActiveArea>,
         ReadStorage<'s, Area>,
         Read<'s, InputHandler<StringBindings>>,
     );
