@@ -1650,6 +1650,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "inkling"
+version = "0.1.0"
+
+[[package]]
 name = "intl_pluralrules"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
