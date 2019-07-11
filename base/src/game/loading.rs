@@ -11,7 +11,7 @@ use amethyst::{
 use std::borrow::BorrowMut;
 
 use super::{
-    area::{Area, ActiveArea, Position},
+    area::{ActiveArea, Area, Position},
     assets::load_fonts,
     bundle::PrefabLoaderBundle,
     character::{CharacterPrefab, PlayerCharacter},
