@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 amethyst = { version = "0.11", features = ["vulkan", "nightly"] }
+inkling = "0.9.3"
 serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
