@@ -4,7 +4,7 @@ use amethyst::{
     shrev::EventChannel,
 };
 
-use crate::game::{Area, ActiveArea, PlayerCharacter, Position};
+use crate::game::{ActiveArea, Area, PlayerCharacter, Position};
 
 use super::{update_transforms::UpdateTransformsEvent, Move};
 
