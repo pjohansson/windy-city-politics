@@ -35,6 +35,13 @@ impl Component for Position {
     type Storage = VecStorage<Self>;
 }
 
+#[derive(Debug, Default)]
+pub struct Collision;
+
+impl Component for Collision {
+    type Storage = NullStorage<Self>;
+}
+
 /// Translate from area grid position to world pixel coordinates for rendering entities
 pub fn get_world_coordinates(x: u32, y: u32) -> (f32, f32) {
     ((x * TILE_WIDTH) as f32, (y * TILE_HEIGHT) as f32)

@@ -9,7 +9,7 @@ use amethyst::{
 use serde::{Deserialize, Serialize};
 
 use super::{
-    area::Position,
+    area::{Collision, Position},
     assets::Fonts,
     consts::{GLYPH_FONT_SIZE, NPC_SPRITE_LAYER, PLAYER_SPRITE_LAYER, TILE_HEIGHT, TILE_WIDTH},
 };
@@ -51,6 +51,7 @@ enum CharacterVariant {
 /// Derive and add all required Components from the prefab when loading from a `PrefabLoader`.
 ///
 /// For all characters:
+///  * `Collision`
 ///  * `Glyph`
 ///  * `Position`       defaults to (0, 0) if not specified
 ///  * `UiText`         for rendering the character as the given glyph
@@ -70,6 +71,7 @@ enum CharacterVariant {
 impl<'a> PrefabData<'a> for CharacterPrefab {
     type SystemData = (
         WriteStorage<'a, Position>,
+        WriteStorage<'a, Collision>,
         WriteStorage<'a, Glyph>,
         WriteStorage<'a, PlayerCharacter>,
         WriteStorage<'a, Named>,
@@ -87,11 +89,21 @@ impl<'a> PrefabData<'a> for CharacterPrefab {
         _entities: &[Entity],
         _children: &[Entity],
     ) -> Result<Self::Result, Error> {
-        let (positions, glyphs, player_characters, names, ui_texts, ui_transforms, fonts) = data;
+        let (
+            positions,
+            collisions,
+            glyphs,
+            player_characters,
+            names,
+            ui_texts,
+            ui_transforms,
+            fonts,
+        ) = data;
 
         let position = self.position.clone().unwrap_or(Position { x: 0, y: 0 });
         positions.insert(entity, position)?;
 
+        collisions.insert(entity, Collision)?;
         glyphs.insert(entity, Glyph(self.glyph))?;
 
         match self.variant {
