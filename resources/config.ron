@@ -1,0 +1,5 @@
+
+(
+    min_duration_hold: 350,
+    min_duration_repeat: 100,
+)

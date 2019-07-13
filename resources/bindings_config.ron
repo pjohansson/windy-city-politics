@@ -4,9 +4,6 @@
     "move_vertical": Emulated(pos: Key(Up), neg: Key(Down)),
   },
   actions: {
-    // "move_up": Key(Up),
-    // "move_down": Key(Down),
-    // "move_left": Key(Left),
-    // "move_right": Key(Right),
+    "action": [ [Key(Space), ], ],
   },
 )

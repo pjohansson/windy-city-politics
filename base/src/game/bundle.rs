@@ -3,7 +3,7 @@ use amethyst::{
 };
 
 use crate::systems::{
-    CameraMovementSystem, PlayerMovementSystem, UpdateCharTileTransformsSystem,
+    CameraMovementSystem, InputSystem, PlayerMovementSystem, UpdateCharTileTransformsSystem,
     UpdateTransformsSystem,
 };
 
@@ -13,7 +13,12 @@ pub struct MovementSystemsBundle;
 
 impl<'a, 'b> SystemBundle<'a, 'b> for MovementSystemsBundle {
     fn build(self, builder: &mut DispatcherBuilder<'a, 'b>) -> Result<(), Error> {
-        builder.add(PlayerMovementSystem, "player_movement_system", &[]);
+        builder.add(InputSystem::default(), "input_parsing_system", &[]);
+        builder.add(
+            PlayerMovementSystem { reader: None },
+            "player_movement_system",
+            &["input_parsing_system"],
+        );
         builder.add(
             CameraMovementSystem { reader: None },
             "camera_movement_system",

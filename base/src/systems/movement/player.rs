@@ -1,15 +1,19 @@
 use amethyst::{
-    ecs::prelude::{Join, Read, ReadExpect, ReadStorage, System, Write, WriteStorage},
-    input::{InputHandler, StringBindings},
-    shrev::EventChannel,
+    ecs::prelude::{
+        Join, Read, ReadExpect, ReadStorage, Resources, System, SystemData, Write, WriteStorage,
+    },
+    // input::{InputHandler, StringBindings},
+    shrev::{EventChannel, ReaderId},
 };
 
 use crate::game::{ActiveArea, Area, PlayerCharacter, Position};
 
-use super::{update_transforms::UpdateTransformsEvent, Move};
+use super::{update_transforms::UpdateTransformsEvent, Action, Move, PlayerActionEvent};
 
 /// Moves the `PlayerCharacter` inside the current active `Area`.
-pub struct PlayerMovementSystem;
+pub struct PlayerMovementSystem {
+    pub reader: Option<ReaderId<PlayerActionEvent>>,
+}
 
 impl<'s> System<'s> for PlayerMovementSystem {
     type SystemData = (
@@ -18,42 +22,64 @@ impl<'s> System<'s> for PlayerMovementSystem {
         ReadStorage<'s, PlayerCharacter>,
         ReadExpect<'s, ActiveArea>,
         ReadStorage<'s, Area>,
-        Read<'s, InputHandler<StringBindings>>,
+        Read<'s, EventChannel<PlayerActionEvent>>,
+        // Read<'s, InputHandler<StringBindings>>,
     );
 
     fn run(
         &mut self,
-        (mut positions, mut events, character, current_area, areas, input): Self::SystemData,
+        (mut positions, mut events, character, current_area, areas, event_channel): Self::SystemData,
     ) {
-        let dx = input
-            .axis_value("move_horizontal")
-            .map(|v| v as i32)
-            .unwrap_or(0);
+        for event in event_channel.read(self.reader.as_mut().unwrap()) {
+            if let PlayerActionEvent(Action::Move(direction)) = event {
+                let [area_size_x, area_size_y] = areas.get(current_area.0).unwrap().dimensions;
+                let max_x = area_size_x.saturating_sub(1);
+                let max_y = area_size_y.saturating_sub(1);
 
-        let dy = input
-            .axis_value("move_vertical")
-            .map(|v| v as i32)
-            .unwrap_or(0);
+                for (position, _) in (&mut positions, &character).join() {
+                    move_position(position, &direction, &[0, 0, max_x, max_y]);
+                }
 
-        let direction = match (dx, dy) {
-            (_, 1) => Some(Move::Up),
-            (_, -1) => Some(Move::Down),
-            (-1, _) => Some(Move::Left),
-            (1, _) => Some(Move::Right),
-            _ => None,
-        };
-
-        if let Some(direction) = direction {
-            let [area_size_x, area_size_y] = areas.get(current_area.0).unwrap().dimensions;
-            let max_x = area_size_x.saturating_sub(1);
-            let max_y = area_size_y.saturating_sub(1);
-
-            for (position, _) in (&mut positions, &character).join() {
-                move_position(position, &direction, &[0, 0, max_x, max_y]);
+                events.single_write(UpdateTransformsEvent);
             }
-
-            events.single_write(UpdateTransformsEvent);
         }
+        // let dx = input
+        //     .axis_value("move_horizontal")
+        //     .map(|v| v as i32)
+        //     .unwrap_or(0);
+
+        // let dy = input
+        //     .axis_value("move_vertical")
+        //     .map(|v| v as i32)
+        //     .unwrap_or(0);
+
+        // let direction = match (dx, dy) {
+        //     (_, 1) => Some(Move::Up),
+        //     (_, -1) => Some(Move::Down),
+        //     (-1, _) => Some(Move::Left),
+        //     (1, _) => Some(Move::Right),
+        //     _ => None,
+        // };
+
+        // if let Some(direction) = direction {
+        //     let [area_size_x, area_size_y] = areas.get(current_area.0).unwrap().dimensions;
+        //     let max_x = area_size_x.saturating_sub(1);
+        //     let max_y = area_size_y.saturating_sub(1);
+
+        //     for (position, _) in (&mut positions, &character).join() {
+        //         move_position(position, &direction, &[0, 0, max_x, max_y]);
+        //     }
+
+        //     events.single_write(UpdateTransformsEvent);
+        // }
+    }
+
+    fn setup(&mut self, res: &mut Resources) {
+        Self::SystemData::setup(res);
+        self.reader = Some(
+            res.fetch_mut::<EventChannel<PlayerActionEvent>>()
+                .register_reader(),
+        );
     }
 }
 
